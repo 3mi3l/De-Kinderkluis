@@ -1,364 +1,80 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>De Kinderkluis - Saldo</title>
-  <style>
-    :root{
-      --bg:#eef5ff;
-      --card:#ffffff;
-      --text:#162033;
-      --muted:#66748f;
-      --primary:#2b6fff;
-      --success:#149c52;
-      --danger:#d54444;
-      --shadow:0 12px 32px rgba(16,24,40,.12);
-      --radius:20px;
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
+
+  function euro(amount){
+    return new Intl.NumberFormat("nl-NL", {
+      style: "currency",
+      currency: "EUR"
+    }).format(Number(amount || 0));
+  }
+
+  function formatDate(iso){
+    const date = new Date(iso);
+    return new Intl.DateTimeFormat("nl-NL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(date);
+  }
+
+  async function loadState(){
+    const res = await fetch(API_URL + "?action=state");
+    const data = await res.json();
+
+    if (!data.ok) {
+      throw new Error(data.error || "Fout bij laden");
     }
 
-    *{box-sizing:border-box}
+    document.getElementById("childTitle").textContent = `De Kinderkluis van ${data.childName}`;
+    document.getElementById("saldoDisplay").textContent = euro(data.balance);
+    document.getElementById("goalName").textContent = data.savingsGoalName;
+    document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
+    document.getElementById("savedAmount").textContent = euro(data.balance);
 
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:linear-gradient(180deg,#edf4ff 0%, #f9fbff 100%);
-      color:var(--text);
+    const remaining = Math.max(0, Number(data.savingsGoalAmount) - Number(data.balance));
+    document.getElementById("remainingAmount").textContent = euro(remaining);
+
+    const percent = Number(data.savingsGoalAmount) > 0
+      ? Math.min(100, Math.round((Number(data.balance) / Number(data.savingsGoalAmount)) * 100))
+      : 0;
+
+    document.getElementById("goalPercent").textContent = `${percent}%`;
+    document.getElementById("progressBar").style.width = `${percent}%`;
+
+    const txList = document.getElementById("txList");
+    txList.innerHTML = "";
+
+    if (!data.transactions || data.transactions.length === 0) {
+      txList.innerHTML = `<div class="empty">Er zijn nog geen transacties.</div>`;
+      return;
     }
 
-    .wrap{
-      max-width:850px;
-      margin:0 auto;
-      padding:24px 16px 40px;
-    }
+    data.transactions.slice(0, 10).forEach(tx => {
+      const div = document.createElement("div");
+      div.className = "tx-item";
 
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:16px;
-      gap:12px;
-      flex-wrap:wrap;
-    }
+      const sign = tx.type === "bij" ? "+" : "-";
+      const amountClass = tx.type === "bij" ? "plus" : "minus";
 
-    .topbar a{
-      text-decoration:none;
-      color:#fff;
-      background:var(--primary);
-      padding:12px 16px;
-      border-radius:14px;
-      font-weight:700;
-    }
-
-    .hero{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:24px;
-      text-align:center;
-    }
-
-    h1{
-      margin:0 0 8px;
-      font-size:2rem;
-    }
-
-    .subtitle{
-      margin:0;
-      color:var(--muted);
-    }
-
-    .saldo{
-      font-size:3rem;
-      font-weight:800;
-      margin:20px 0 6px;
-      color:var(--success);
-    }
-
-    .saldo-note{
-      color:var(--muted);
-      margin-bottom:18px;
-    }
-
-    .goal-card,
-    .tx-card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:22px;
-      margin-top:18px;
-    }
-
-    .goal-row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-      align-items:end;
-    }
-
-    .goal-title{
-      font-size:1.2rem;
-      font-weight:700;
-    }
-
-    .goal-small{
-      color:var(--muted);
-      font-size:.95rem;
-    }
-
-    .progress{
-      width:100%;
-      height:18px;
-      background:#e8eefc;
-      border-radius:999px;
-      overflow:hidden;
-    }
-
-    .progress-bar{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#2b6fff,#6da0ff);
-      border-radius:999px;
-    }
-
-    .goal-stats{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-      gap:12px;
-      margin-top:16px;
-    }
-
-    .mini{
-      background:#f7faff;
-      border:1px solid #e6eeff;
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .mini-label{
-      color:var(--muted);
-      font-size:.9rem;
-      margin-bottom:6px;
-    }
-
-    .mini-value{
-      font-size:1.15rem;
-      font-weight:700;
-    }
-
-    h2{
-      margin:0 0 14px;
-      font-size:1.2rem;
-    }
-
-    .tx-list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .tx-item{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      background:#f8fbff;
-      border:1px solid #e8efff;
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .tx-left{
-      min-width:0;
-    }
-
-    .tx-title{
-      font-weight:700;
-      margin-bottom:4px;
-    }
-
-    .tx-meta{
-      color:var(--muted);
-      font-size:.92rem;
-      line-height:1.4;
-    }
-
-    .tx-amount{
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .tx-amount.plus{
-      color:var(--success);
-    }
-
-    .tx-amount.minus{
-      color:var(--danger);
-    }
-
-    .empty{
-      color:var(--muted);
-      background:#f8fbff;
-      border:1px dashed #d8e5ff;
-      border-radius:14px;
-      padding:16px;
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="topbar">
-      <a href="index.html">← Start</a>
-      <a href="ouder.html">Ouder beheer</a>
-    </div>
-
-    <section class="hero">
-      <h1 id="childTitle">De Kinderkluis</h1>
-      <p class="subtitle">Jouw spaargeld en uitgaven</p>
-      <div class="saldo" id="saldoDisplay">€ 0,00</div>
-      <div class="saldo-note">Bekijk hier hoeveel je nog hebt.</div>
-    </section>
-
-    <section class="goal-card">
-      <div class="goal-row">
-        <div>
-          <div class="goal-title" id="goalName">Spaardoel</div>
-          <div class="goal-small">Blijf sparen tot je doel is gehaald.</div>
-        </div>
-        <div class="goal-small" id="goalPercent">0%</div>
-      </div>
-
-      <div class="progress">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-
-      <div class="goal-stats">
-        <div class="mini">
-          <div class="mini-label">Doelbedrag</div>
-          <div class="mini-value" id="goalAmount">€ 0,00</div>
-        </div>
-        <div class="mini">
-          <div class="mini-label">Gespaard</div>
-          <div class="mini-value" id="savedAmount">€ 0,00</div>
-        </div>
-        <div class="mini">
-          <div class="mini-label">Nog nodig</div>
-          <div class="mini-value" id="remainingAmount">€ 0,00</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="tx-card">
-      <h2>Laatste transacties</h2>
-      <div class="tx-list" id="txList"></div>
-    </section>
-  </div>
-
-  <script>
-    const STORAGE_KEY = "de_kinderkluis_data_v1";
-
-    function euro(amount){
-      return new Intl.NumberFormat("nl-NL", {
-        style: "currency",
-        currency: "EUR"
-      }).format(amount);
-    }
-
-    function formatDate(iso){
-      const date = new Date(iso);
-      return new Intl.DateTimeFormat("nl-NL", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).format(date);
-    }
-
-    function defaultData(){
-      return {
-        childName: "Sem",
-        balance: 7.50,
-        savingsGoalName: "Lego set",
-        savingsGoalAmount: 12.00,
-        transactions: [
-          { id: Date.now()-3000, type:"bij", amount: 2.00, category:"weekgeld", note:"Weekgeld", createdAt: new Date(Date.now()-3000).toISOString() },
-          { id: Date.now()-2000, type:"af", amount: 0.50, category:"snoep", note:"Snoep", createdAt: new Date(Date.now()-2000).toISOString() },
-          { id: Date.now()-1000, type:"bij", amount: 1.00, category:"klusje", note:"Kamer opgeruimd", createdAt: new Date(Date.now()-1000).toISOString() }
-        ]
-      };
-    }
-
-    function getData(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw){
-        const data = defaultData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return data;
-      }
-      try {
-        return JSON.parse(raw);
-      } catch {
-        const data = defaultData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return data;
-      }
-    }
-
-    function render(){
-      const data = getData();
-
-      document.getElementById("childTitle").textContent = `De Kinderkluis van ${data.childName}`;
-      document.getElementById("saldoDisplay").textContent = euro(data.balance);
-      document.getElementById("goalName").textContent = data.savingsGoalName;
-      document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
-      document.getElementById("savedAmount").textContent = euro(data.balance);
-
-      const remaining = Math.max(0, data.savingsGoalAmount - data.balance);
-      document.getElementById("remainingAmount").textContent = euro(remaining);
-
-      const percent = data.savingsGoalAmount > 0
-        ? Math.min(100, Math.round((data.balance / data.savingsGoalAmount) * 100))
-        : 0;
-
-      document.getElementById("goalPercent").textContent = `${percent}%`;
-      document.getElementById("progressBar").style.width = `${percent}%`;
-
-      const txList = document.getElementById("txList");
-      txList.innerHTML = "";
-
-      const sorted = [...data.transactions].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      if(sorted.length === 0){
-        txList.innerHTML = `<div class="empty">Er zijn nog geen transacties.</div>`;
-        return;
-      }
-
-      sorted.slice(0, 10).forEach(tx => {
-        const div = document.createElement("div");
-        div.className = "tx-item";
-
-        const sign = tx.type === "bij" ? "+" : "-";
-        const amountClass = tx.type === "bij" ? "plus" : "minus";
-
-        div.innerHTML = `
-          <div class="tx-left">
-            <div class="tx-title">${tx.note || tx.category || "Transactie"}</div>
-            <div class="tx-meta">
-              Categorie: ${tx.category || "-"}<br>
-              ${formatDate(tx.createdAt)}
-            </div>
+      div.innerHTML = `
+        <div class="tx-left">
+          <div class="tx-title">${tx.note || tx.category || "Transactie"}</div>
+          <div class="tx-meta">
+            Categorie: ${tx.category || "-"}<br>
+            ${formatDate(tx.createdAt)}
           </div>
-          <div class="tx-amount ${amountClass}">${sign} ${euro(tx.amount)}</div>
-        `;
+        </div>
+        <div class="tx-amount ${amountClass}">${sign} ${euro(tx.amount)}</div>
+      `;
 
-        txList.appendChild(div);
-      });
-    }
+      txList.appendChild(div);
+    });
+  }
 
-    render();
-  </script>
-</body>
-</html>
+  loadState().catch(err => {
+    document.getElementById("saldoDisplay").textContent = "Fout";
+    document.getElementById("txList").innerHTML = `<div class="empty">${err.message}</div>`;
+  });
+</script>
