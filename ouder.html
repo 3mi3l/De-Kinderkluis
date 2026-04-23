@@ -5,86 +5,568 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>De Kinderkluis - Ouder beheer</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8fafc;
-      color: #1e293b;
-      margin: 0;
-      padding: 30px 20px;
+    :root{
+      --bg:#f6f9ff;
+      --card:#ffffff;
+      --text:#162033;
+      --muted:#66748f;
+      --primary:#2b6fff;
+      --primary-dark:#1f57cc;
+      --success:#169a52;
+      --danger:#d84444;
+      --shadow:0 12px 32px rgba(16,24,40,.12);
+      --radius:20px;
     }
-    .wrap {
-      max-width: 700px;
-      margin: 0 auto;
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eef4ff 0%, #f9fbff 100%);
+      color:var(--text);
     }
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:24px 16px 40px;
     }
-    h1 {
-      margin-top: 0;
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:16px;
+      gap:12px;
+      flex-wrap:wrap;
     }
-    .saldo {
-      font-size: 2rem;
-      font-weight: bold;
-      margin: 16px 0 24px;
-      color: #0f172a;
+
+    .topbar a{
+      text-decoration:none;
+      color:#fff;
+      background:var(--primary);
+      padding:12px 16px;
+      border-radius:14px;
+      font-weight:700;
     }
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:18px;
     }
-    button, .back {
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
     }
-    .plus {
-      background: #16a34a;
-      color: white;
+
+    h1,h2{
+      margin-top:0;
     }
-    .minus {
-      background: #dc2626;
-      color: white;
+
+    .muted{
+      color:var(--muted);
     }
-    .back {
-      display: inline-block;
-      text-decoration: none;
-      background: #2563eb;
-      color: white;
-      margin-top: 10px;
+
+    .saldo-box{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:12px;
+      margin-top:18px;
     }
-    .note {
-      color: #64748b;
-      font-size: 0.95rem;
-      margin-top: 15px;
+
+    .mini{
+      background:#f7faff;
+      border:1px solid #e6eeff;
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .mini-label{
+      color:var(--muted);
+      font-size:.9rem;
+      margin-bottom:6px;
+    }
+
+    .mini-value{
+      font-size:1.25rem;
+      font-weight:700;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .full{
+      grid-column:1 / -1;
+    }
+
+    label{
+      display:block;
+      font-weight:700;
+      margin-bottom:6px;
+      font-size:.95rem;
+    }
+
+    input, select, textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #d6e2ff;
+      background:#fff;
+      font-size:1rem;
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .quick-buttons{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+
+    button{
+      border:none;
+      cursor:pointer;
+      border-radius:12px;
+      padding:13px 14px;
+      font-weight:700;
+      font-size:1rem;
+    }
+
+    .quick-plus{
+      background:rgba(22,154,82,.12);
+      color:var(--success);
+    }
+
+    .quick-minus{
+      background:rgba(216,68,68,.12);
+      color:var(--danger);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .btn-secondary{
+      background:#eef3ff;
+      color:var(--primary);
+    }
+
+    .btn-danger{
+      background:#ffe9e9;
+      color:var(--danger);
+    }
+
+    .message{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      display:none;
+      font-weight:700;
+    }
+
+    .message.show{
+      display:block;
+    }
+
+    .message.success{
+      background:#eaf8ef;
+      color:#157347;
+    }
+
+    .tx-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .tx-item{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      background:#f8fbff;
+      border:1px solid #e8efff;
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .tx-title{
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .tx-meta{
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.4;
+    }
+
+    .tx-amount{
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .tx-amount.plus{ color:var(--success); }
+    .tx-amount.minus{ color:var(--danger); }
+
+    .small-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    .small-btn{
+      background:#f2f6ff;
+      color:var(--primary);
+      padding:10px 12px;
+      border-radius:10px;
+      font-size:.95rem;
+    }
+
+    @media (max-width: 860px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 560px){
+      .quick-buttons{
+        grid-template-columns:repeat(2,1fr);
+      }
+      .form-grid{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <h1>Ouder beheer</h1>
-      <p>Kind: Sem</p>
-      <div class="saldo">Saldo: € 7,50</div>
+    <div class="topbar">
+      <a href="index.html">← Start</a>
+      <a href="saldo.html">Bekijk saldo</a>
+    </div>
 
-      <div class="buttons">
-        <button class="plus">+ € 0,50</button>
-        <button class="plus">+ € 1,00</button>
-        <button class="minus">- € 0,50</button>
-        <button class="minus">- € 1,00</button>
-      </div>
+    <div class="grid">
+      <section class="card">
+        <h1>Ouder beheer</h1>
+        <p class="muted">Boek geld af of bij voor De Kinderkluis.</p>
 
-      <p class="note">Dit is nog een demo zonder echte opslag.</p>
+        <div class="saldo-box">
+          <div class="mini">
+            <div class="mini-label">Kind</div>
+            <div class="mini-value" id="childNameView">Sem</div>
+          </div>
+          <div class="mini">
+            <div class="mini-label">Huidig saldo</div>
+            <div class="mini-value" id="balanceView">€ 0,00</div>
+          </div>
+          <div class="mini">
+            <div class="mini-label">Spaardoel</div>
+            <div class="mini-value" id="goalView">Lego set</div>
+          </div>
+        </div>
 
-      <a class="back" href="index.html">Terug</a>
+        <div class="form-grid">
+          <div class="full">
+            <label>Snelbedragen</label>
+            <div class="quick-buttons">
+              <button type="button" class="quick-plus" data-type="bij" data-amount="0.50">+ € 0,50</button>
+              <button type="button" class="quick-plus" data-type="bij" data-amount="1.00">+ € 1,00</button>
+              <button type="button" class="quick-minus" data-type="af" data-amount="0.50">- € 0,50</button>
+              <button type="button" class="quick-minus" data-type="af" data-amount="1.00">- € 1,00</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="bij">Bijschrijven</option>
+              <option value="af">Afschrijven</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="amount">Bedrag</label>
+            <input id="amount" type="number" min="0" step="0.01" placeholder="Bijv. 1.50" />
+          </div>
+
+          <div>
+            <label for="category">Categorie</label>
+            <select id="category">
+              <option value="weekgeld">Weekgeld</option>
+              <option value="klusje">Klusje</option>
+              <option value="snoep">Snoep</option>
+              <option value="speelgoed">Speelgoed</option>
+              <option value="schermtijd">Schermtijd</option>
+              <option value="bonus">Bonus</option>
+              <option value="correctie">Correctie</option>
+              <option value="sparen">Sparen</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="device">Apparaat / ouder</label>
+            <input id="device" type="text" placeholder="Bijv. vader iPhone" />
+          </div>
+
+          <div class="full">
+            <label for="note">Omschrijving</label>
+            <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" id="saveBtn" type="button">Transactie opslaan</button>
+          <button class="btn-secondary" id="goalBtn" type="button">Spaardoel aanpassen</button>
+          <button class="btn-danger" id="resetBtn" type="button">Alles resetten</button>
+        </div>
+
+        <div id="message" class="message"></div>
+      </section>
+
+      <section class="card">
+        <h2>Laatste transacties</h2>
+        <div class="tx-list" id="txList"></div>
+
+        <div class="small-actions">
+          <button type="button" class="small-btn" id="addWeekgeld">+ Weekgeld € 2,00</button>
+          <button type="button" class="small-btn" id="addKlusje">+ Klusje € 1,00</button>
+          <button type="button" class="small-btn" id="buySnoep">- Snoep € 0,50</button>
+          <button type="button" class="small-btn" id="buySchermtijd">- Schermtijd € 1,00</button>
+        </div>
+      </section>
     </div>
   </div>
+
+  <script>
+    const STORAGE_KEY = "de_kinderkluis_data_v1";
+
+    function euro(amount){
+      return new Intl.NumberFormat("nl-NL", {
+        style: "currency",
+        currency: "EUR"
+      }).format(amount);
+    }
+
+    function formatDate(iso){
+      const date = new Date(iso);
+      return new Intl.DateTimeFormat("nl-NL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    function defaultData(){
+      return {
+        childName: "Sem",
+        balance: 7.50,
+        savingsGoalName: "Lego set",
+        savingsGoalAmount: 12.00,
+        transactions: [
+          { id: Date.now()-3000, type:"bij", amount: 2.00, category:"weekgeld", note:"Weekgeld", device:"systeem", createdAt: new Date(Date.now()-3000).toISOString() },
+          { id: Date.now()-2000, type:"af", amount: 0.50, category:"snoep", note:"Snoep", device:"systeem", createdAt: new Date(Date.now()-2000).toISOString() },
+          { id: Date.now()-1000, type:"bij", amount: 1.00, category:"klusje", note:"Kamer opgeruimd", device:"systeem", createdAt: new Date(Date.now()-1000).toISOString() }
+        ]
+      };
+    }
+
+    function getData(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){
+        const data = defaultData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return data;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch {
+        const data = defaultData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+
+    function saveData(data){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function showMessage(text, kind="success"){
+      const el = document.getElementById("message");
+      el.textContent = text;
+      el.className = `message show ${kind}`;
+      setTimeout(() => {
+        el.className = "message";
+      }, 2600);
+    }
+
+    function render(){
+      const data = getData();
+
+      document.getElementById("childNameView").textContent = data.childName;
+      document.getElementById("balanceView").textContent = euro(data.balance);
+      document.getElementById("goalView").textContent = data.savingsGoalName;
+
+      const txList = document.getElementById("txList");
+      txList.innerHTML = "";
+
+      const sorted = [...data.transactions].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      if(sorted.length === 0){
+        txList.innerHTML = `<div class="muted">Nog geen transacties.</div>`;
+        return;
+      }
+
+      sorted.slice(0, 12).forEach(tx => {
+        const sign = tx.type === "bij" ? "+" : "-";
+        const amountClass = tx.type === "bij" ? "plus" : "minus";
+
+        const item = document.createElement("div");
+        item.className = "tx-item";
+        item.innerHTML = `
+          <div>
+            <div class="tx-title">${tx.note || tx.category || "Transactie"}</div>
+            <div class="tx-meta">
+              Categorie: ${tx.category || "-"}<br>
+              Apparaat: ${tx.device || "-"}<br>
+              ${formatDate(tx.createdAt)}
+            </div>
+          </div>
+          <div class="tx-amount ${amountClass}">${sign} ${euro(tx.amount)}</div>
+        `;
+        txList.appendChild(item);
+      });
+    }
+
+    function addTransaction(type, amount, category, note, device){
+      const data = getData();
+      const numericAmount = Number(amount);
+
+      if(!numericAmount || numericAmount <= 0){
+        showMessage("Voer een geldig bedrag in.");
+        return;
+      }
+
+      if(type === "af" && data.balance < numericAmount){
+        showMessage("Onvoldoende saldo.");
+        return;
+      }
+
+      if(type === "bij"){
+        data.balance += numericAmount;
+      } else {
+        data.balance -= numericAmount;
+      }
+
+      data.balance = Math.round(data.balance * 100) / 100;
+
+      data.transactions.push({
+        id: Date.now(),
+        type,
+        amount: numericAmount,
+        category: category || "",
+        note: note || "",
+        device: device || "",
+        createdAt: new Date().toISOString()
+      });
+
+      saveData(data);
+      render();
+      showMessage(`Transactie opgeslagen: ${type === "bij" ? "bij" : "af"} ${euro(numericAmount)}`);
+    }
+
+    document.querySelectorAll("[data-type]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.getElementById("type").value = btn.dataset.type;
+        document.getElementById("amount").value = btn.dataset.amount;
+      });
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const type = document.getElementById("type").value;
+      const amount = document.getElementById("amount").value;
+      const category = document.getElementById("category").value;
+      const note = document.getElementById("note").value.trim();
+      const device = document.getElementById("device").value.trim();
+
+      addTransaction(type, amount, category, note, device);
+
+      document.getElementById("amount").value = "";
+      document.getElementById("note").value = "";
+    });
+
+    document.getElementById("goalBtn").addEventListener("click", () => {
+      const data = getData();
+
+      const newName = prompt("Nieuw spaardoel:", data.savingsGoalName);
+      if(newName === null) return;
+
+      const newAmount = prompt("Nieuw doelbedrag in euro, bijvoorbeeld 15.00:", data.savingsGoalAmount);
+      if(newAmount === null) return;
+
+      const numeric = Number(newAmount);
+      if(!numeric || numeric <= 0){
+        showMessage("Doelbedrag is ongeldig.");
+        return;
+      }
+
+      data.savingsGoalName = newName.trim() || data.savingsGoalName;
+      data.savingsGoalAmount = Math.round(numeric * 100) / 100;
+      saveData(data);
+      render();
+      showMessage("Spaardoel aangepast.");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      const ok = confirm("Weet je zeker dat je alles wilt resetten naar de standaard demo?");
+      if(!ok) return;
+      saveData(defaultData());
+      render();
+      showMessage("Alles is gereset.");
+    });
+
+    document.getElementById("addWeekgeld").addEventListener("click", () => {
+      addTransaction("bij", 2.00, "weekgeld", "Weekgeld", "snelknop");
+    });
+
+    document.getElementById("addKlusje").addEventListener("click", () => {
+      addTransaction("bij", 1.00, "klusje", "Klusje gedaan", "snelknop");
+    });
+
+    document.getElementById("buySnoep").addEventListener("click", () => {
+      addTransaction("af", 0.50, "snoep", "Snoep", "snelknop");
+    });
+
+    document.getElementById("buySchermtijd").addEventListener("click", () => {
+      addTransaction("af", 1.00, "schermtijd", "Extra schermtijd", "snelknop");
+    });
+
+    render();
+  </script>
 </body>
 </html>
