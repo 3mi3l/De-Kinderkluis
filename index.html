@@ -12,8 +12,6 @@
       --muted:#5e6b85;
       --primary:#2b6fff;
       --primary-dark:#1f57cc;
-      --success:#1f9d55;
-      --danger:#d63b3b;
       --shadow:0 12px 32px rgba(16,24,40,.12);
       --radius:20px;
     }
@@ -153,6 +151,12 @@
       line-height:1.5;
     }
 
+    .status{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
     @media (max-width: 760px){
       .section{
         grid-template-columns:1fr;
@@ -172,15 +176,15 @@
       <div class="status-grid">
         <div class="stat">
           <div class="stat-label">Huidig saldo</div>
-          <div class="stat-value" id="homeSaldo">€ 0,00</div>
+          <div class="stat-value" id="homeSaldo">Laden...</div>
         </div>
         <div class="stat">
           <div class="stat-label">Spaardoel</div>
-          <div class="stat-value" id="homeDoel">Lego set</div>
+          <div class="stat-value" id="homeDoel">Laden...</div>
         </div>
         <div class="stat">
           <div class="stat-label">Nog nodig</div>
-          <div class="stat-value" id="homeNogNodig">€ 0,00</div>
+          <div class="stat-value" id="homeNogNodig">Laden...</div>
         </div>
       </div>
 
@@ -188,6 +192,8 @@
         <a class="btn btn-primary" href="saldo.html">Bekijk saldo</a>
         <a class="btn btn-secondary" href="ouder.html">Ouder beheer</a>
       </div>
+
+      <div class="status" id="pageStatus">Gegevens laden...</div>
     </section>
 
     <section class="section">
@@ -196,66 +202,59 @@
         <ol class="list">
           <li>Scan de pas op een ouder-iPhone om geld af of bij te schrijven.</li>
           <li>Scan de pas op de familie-iPhone om alleen het saldo te bekijken.</li>
-          <li>Alles wordt lokaal opgeslagen op het toestel in de browser.</li>
+          <li>Alle apparaten lezen nu uit dezelfde online Kinderkluis-database.</li>
         </ol>
       </div>
 
       <div class="card">
-        <h2>Let op</h2>
+        <h2>Overzicht</h2>
         <p class="small">
-          Deze versie gebruikt lokale opslag per apparaat. Voor gedeeld live saldo tussen meerdere iPhones
-          is later een online database nodig.
+          Deze startpagina leest live mee met het saldo en het spaardoel uit Google Apps Script en Google Sheets.
         </p>
       </div>
     </section>
   </div>
 
   <script>
-    const STORAGE_KEY = "de_kinderkluis_data_v1";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
 
     function euro(amount){
       return new Intl.NumberFormat("nl-NL", {
         style: "currency",
         currency: "EUR"
-      }).format(amount);
+      }).format(Number(amount || 0));
     }
 
-    function defaultData(){
-      return {
-        childName: "Sem",
-        balance: 7.50,
-        savingsGoalName: "Lego set",
-        savingsGoalAmount: 12.00,
-        transactions: [
-          { id: Date.now()-3000, type:"bij", amount: 2.00, category:"weekgeld", note:"Weekgeld", createdAt: new Date(Date.now()-3000).toISOString() },
-          { id: Date.now()-2000, type:"af", amount: 0.50, category:"snoep", note:"Snoep", createdAt: new Date(Date.now()-2000).toISOString() },
-          { id: Date.now()-1000, type:"bij", amount: 1.00, category:"klusje", note:"Kamer opgeruimd", createdAt: new Date(Date.now()-1000).toISOString() }
-        ]
-      };
-    }
+    async function loadState(){
+      const response = await fetch(API_URL + "?action=state");
+      const text = await response.text();
 
-    function getData(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw){
-        const data = defaultData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return data;
-      }
+      let data;
       try {
-        return JSON.parse(raw);
-      } catch {
-        const data = defaultData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return data;
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("API gaf geen geldige JSON terug.");
       }
+
+      if (!data.ok) {
+        throw new Error(data.error || "Fout bij laden");
+      }
+
+      const remaining = Math.max(0, Number(data.savingsGoalAmount || 0) - Number(data.balance || 0));
+
+      document.getElementById("homeSaldo").textContent = euro(data.balance);
+      document.getElementById("homeDoel").textContent = data.savingsGoalName || "-";
+      document.getElementById("homeNogNodig").textContent = euro(remaining);
+      document.getElementById("pageStatus").textContent = "Gegevens geladen.";
     }
 
-    const data = getData();
-    const remaining = Math.max(0, data.savingsGoalAmount - data.balance);
-
-    document.getElementById("homeSaldo").textContent = euro(data.balance);
-    document.getElementById("homeDoel").textContent = data.savingsGoalName;
-    document.getElementById("homeNogNodig").textContent = euro(remaining);
+    loadState().catch(err => {
+      document.getElementById("homeSaldo").textContent = "Fout";
+      document.getElementById("homeDoel").textContent = "Fout";
+      document.getElementById("homeNogNodig").textContent = "Fout";
+      document.getElementById("pageStatus").textContent = "Fout bij laden: " + err.message;
+      console.error(err);
+    });
   </script>
 </body>
 </html>
