@@ -3,59 +3,259 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>De Kinderkluis - Saldo</title>
+  <title>De Kinderkluis</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #eef4ff;
-      color: #1e293b;
-      margin: 0;
-      padding: 30px 20px;
+    :root{
+      --bg:#f3f7ff;
+      --card:#ffffff;
+      --text:#172033;
+      --muted:#5e6b85;
+      --primary:#2b6fff;
+      --primary-dark:#1f57cc;
+      --success:#1f9d55;
+      --danger:#d63b3b;
+      --shadow:0 12px 32px rgba(16,24,40,.12);
+      --radius:20px;
     }
-    .wrap {
-      max-width: 700px;
-      margin: 0 auto;
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eef4ff 0%, #f8fbff 100%);
+      color:var(--text);
     }
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-      text-align: center;
+
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      padding:28px 18px 40px;
     }
-    h1 {
-      margin-top: 0;
+
+    .hero{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      overflow:hidden;
+      position:relative;
     }
-    .saldo {
-      font-size: 3rem;
-      font-weight: bold;
-      margin: 20px 0;
-      color: #16a34a;
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      right:-40px;
+      top:-40px;
+      width:180px;
+      height:180px;
+      background:radial-gradient(circle, rgba(43,111,255,.18), rgba(43,111,255,0));
+      border-radius:50%;
     }
-    .goal {
-      margin-top: 18px;
-      font-size: 1.05rem;
+
+    h1{
+      margin:0 0 8px;
+      font-size:2.1rem;
     }
-    .back {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      color: white;
-      background: #2563eb;
-      padding: 10px 16px;
-      border-radius: 10px;
+
+    .tagline{
+      margin:0 0 20px;
+      color:var(--muted);
+      font-size:1.05rem;
+    }
+
+    .status-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:14px;
+      margin:22px 0 26px;
+    }
+
+    .stat{
+      background:#f7faff;
+      border:1px solid #e5edff;
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .stat-label{
+      color:var(--muted);
+      font-size:.95rem;
+      margin-bottom:6px;
+    }
+
+    .stat-value{
+      font-size:1.55rem;
+      font-weight:700;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      display:inline-block;
+      text-decoration:none;
+      border:none;
+      cursor:pointer;
+      padding:14px 18px;
+      border-radius:14px;
+      font-weight:700;
+      font-size:1rem;
+      transition:.15s ease;
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .btn-primary:hover{
+      background:var(--primary-dark);
+    }
+
+    .btn-secondary{
+      background:#eef3ff;
+      color:var(--primary);
+    }
+
+    .section{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:18px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+
+    .card h2{
+      margin:0 0 14px;
+      font-size:1.2rem;
+    }
+
+    .list{
+      margin:0;
+      padding-left:18px;
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    .small{
+      color:var(--muted);
+      font-size:.95rem;
+      line-height:1.5;
+    }
+
+    @media (max-width: 760px){
+      .section{
+        grid-template-columns:1fr;
+      }
+      h1{
+        font-size:1.8rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+    <section class="hero">
       <h1>De Kinderkluis</h1>
-      <p>Jouw saldo is nu:</p>
-      <div class="saldo">€ 7,50</div>
-      <div class="goal">Spaardoel: Lego set — nog € 4,50 te sparen</div>
-      <a class="back" href="index.html">Terug</a>
-    </div>
+      <p class="tagline">Scan. Kijk. Spaar. Betaal.</p>
+
+      <div class="status-grid">
+        <div class="stat">
+          <div class="stat-label">Huidig saldo</div>
+          <div class="stat-value" id="homeSaldo">€ 0,00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Spaardoel</div>
+          <div class="stat-value" id="homeDoel">Lego set</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Nog nodig</div>
+          <div class="stat-value" id="homeNogNodig">€ 0,00</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="saldo.html">Bekijk saldo</a>
+        <a class="btn btn-secondary" href="ouder.html">Ouder beheer</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <h2>Hoe werkt het?</h2>
+        <ol class="list">
+          <li>Scan de pas op een ouder-iPhone om geld af of bij te schrijven.</li>
+          <li>Scan de pas op de familie-iPhone om alleen het saldo te bekijken.</li>
+          <li>Alles wordt lokaal opgeslagen op het toestel in de browser.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Let op</h2>
+        <p class="small">
+          Deze versie gebruikt lokale opslag per apparaat. Voor gedeeld live saldo tussen meerdere iPhones
+          is later een online database nodig.
+        </p>
+      </div>
+    </section>
   </div>
+
+  <script>
+    const STORAGE_KEY = "de_kinderkluis_data_v1";
+
+    function euro(amount){
+      return new Intl.NumberFormat("nl-NL", {
+        style: "currency",
+        currency: "EUR"
+      }).format(amount);
+    }
+
+    function defaultData(){
+      return {
+        childName: "Sem",
+        balance: 7.50,
+        savingsGoalName: "Lego set",
+        savingsGoalAmount: 12.00,
+        transactions: [
+          { id: Date.now()-3000, type:"bij", amount: 2.00, category:"weekgeld", note:"Weekgeld", createdAt: new Date(Date.now()-3000).toISOString() },
+          { id: Date.now()-2000, type:"af", amount: 0.50, category:"snoep", note:"Snoep", createdAt: new Date(Date.now()-2000).toISOString() },
+          { id: Date.now()-1000, type:"bij", amount: 1.00, category:"klusje", note:"Kamer opgeruimd", createdAt: new Date(Date.now()-1000).toISOString() }
+        ]
+      };
+    }
+
+    function getData(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){
+        const data = defaultData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return data;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch {
+        const data = defaultData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+
+    const data = getData();
+    const remaining = Math.max(0, data.savingsGoalAmount - data.balance);
+
+    document.getElementById("homeSaldo").textContent = euro(data.balance);
+    document.getElementById("homeDoel").textContent = data.savingsGoalName;
+    document.getElementById("homeNogNodig").textContent = euro(remaining);
+  </script>
 </body>
 </html>
