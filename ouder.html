@@ -1,572 +1,492 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>De Kinderkluis - Ouder beheer</title>
   <style>
-    :root{
-      --bg:#f6f9ff;
-      --card:#ffffff;
-      --text:#162033;
-      --muted:#66748f;
-      --primary:#2b6fff;
-      --primary-dark:#1f57cc;
-      --success:#169a52;
-      --danger:#d84444;
-      --shadow:0 12px 32px rgba(16,24,40,.12);
-      --radius:20px;
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #eef4ff;
+      color: #1e293b;
+      padding: 20px;
     }
 
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:linear-gradient(180deg,#eef4ff 0%, #f9fbff 100%);
-      color:var(--text);
+    .wrap {
+      max-width: 950px;
+      margin: 0 auto;
     }
 
-    .wrap{
-      max-width:980px;
-      margin:0 auto;
-      padding:24px 16px 40px;
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
     }
 
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:16px;
-      gap:12px;
-      flex-wrap:wrap;
+    h1, h2 {
+      margin-top: 0;
     }
 
-    .topbar a{
-      text-decoration:none;
-      color:#fff;
-      background:var(--primary);
-      padding:12px 16px;
-      border-radius:14px;
-      font-weight:700;
+    .btn, button {
+      display: inline-block;
+      text-decoration: none;
+      background: #2563eb;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:18px;
+    .btn-secondary {
+      background: #475569;
     }
 
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:22px;
+    .btn-danger {
+      background: #dc2626;
     }
 
-    h1,h2{
-      margin-top:0;
+    .btn-green {
+      background: #16a34a;
     }
 
-    .muted{
-      color:var(--muted);
+    .btn-red {
+      background: #dc2626;
     }
 
-    .saldo-box{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:12px;
-      margin-top:18px;
+    .saldo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0f172a;
+      margin: 16px 0;
     }
 
-    .mini{
-      background:#f7faff;
-      border:1px solid #e6eeff;
-      border-radius:14px;
-      padding:14px;
+    .muted {
+      color: #64748b;
     }
 
-    .mini-label{
-      color:var(--muted);
-      font-size:.9rem;
-      margin-bottom:6px;
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
     }
 
-    .mini-value{
-      font-size:1.25rem;
-      font-weight:700;
+    .field {
+      margin-bottom: 14px;
     }
 
-    .form-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:16px;
+    .field label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
     }
 
-    .full{
-      grid-column:1 / -1;
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-size: 1rem;
     }
 
-    label{
-      display:block;
-      font-weight:700;
-      margin-bottom:6px;
-      font-size:.95rem;
+    .field textarea {
+      min-height: 90px;
+      resize: vertical;
     }
 
-    input, select, textarea{
-      width:100%;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid #d6e2ff;
-      background:#fff;
-      font-size:1rem;
+    .quick-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
     }
 
-    textarea{
-      min-height:90px;
-      resize:vertical;
+    .tx-item {
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8fbff;
+      border: 1px solid #dbe7ff;
+      margin-bottom: 10px;
     }
 
-    .quick-buttons{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      margin-top:12px;
+    .plus {
+      color: #16a34a;
+      font-weight: bold;
     }
 
-    button{
-      border:none;
-      cursor:pointer;
-      border-radius:12px;
-      padding:13px 14px;
-      font-weight:700;
-      font-size:1rem;
+    .minus {
+      color: #dc2626;
+      font-weight: bold;
     }
 
-    .quick-plus{
-      background:rgba(22,154,82,.12);
-      color:var(--success);
+    .error {
+      background: #fff1f2;
+      color: #b91c1c;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #fecdd3;
+      margin-top: 12px;
     }
 
-    .quick-minus{
-      background:rgba(216,68,68,.12);
-      color:var(--danger);
+    .success {
+      background: #f0fdf4;
+      color: #166534;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #bbf7d0;
+      margin-top: 12px;
     }
 
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:16px;
+    .loading {
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #bfdbfe;
+      margin-top: 12px;
     }
 
-    .btn-primary{
-      background:var(--primary);
-      color:#fff;
-    }
-
-    .btn-secondary{
-      background:#eef3ff;
-      color:var(--primary);
-    }
-
-    .btn-danger{
-      background:#ffe9e9;
-      color:var(--danger);
-    }
-
-    .message{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:12px;
-      display:none;
-      font-weight:700;
-    }
-
-    .message.show{
-      display:block;
-    }
-
-    .message.success{
-      background:#eaf8ef;
-      color:#157347;
-    }
-
-    .tx-list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:14px;
-    }
-
-    .tx-item{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      background:#f8fbff;
-      border:1px solid #e8efff;
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .tx-title{
-      font-weight:700;
-      margin-bottom:4px;
-    }
-
-    .tx-meta{
-      color:var(--muted);
-      font-size:.92rem;
-      line-height:1.4;
-    }
-
-    .tx-amount{
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .tx-amount.plus{ color:var(--success); }
-    .tx-amount.minus{ color:var(--danger); }
-
-    .small-actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:16px;
-    }
-
-    .small-btn{
-      background:#f2f6ff;
-      color:var(--primary);
-      padding:10px 12px;
-      border-radius:10px;
-      font-size:.95rem;
-    }
-
-    @media (max-width: 860px){
-      .grid{
-        grid-template-columns:1fr;
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
       }
-    }
 
-    @media (max-width: 560px){
-      .quick-buttons{
-        grid-template-columns:repeat(2,1fr);
-      }
-      .form-grid{
-        grid-template-columns:1fr;
+      .quick-buttons {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <a href="index.html">← Start</a>
-      <a href="saldo.html">Bekijk saldo</a>
+    <div class="card">
+      <a class="btn" href="index.html">← Start</a>
+      <a class="btn btn-secondary" href="saldo.html">Bekijk saldo</a>
+
+      <h1>Ouder beheer</h1>
+      <p class="muted">Geld af- en bijschrijven voor De Kinderkluis.</p>
+
+      <div><strong>Kind:</strong> <span id="childName">Laden...</span></div>
+      <div class="saldo">Huidig saldo: <span id="balance">Laden...</span></div>
+      <div><strong>Spaardoel:</strong> <span id="goalName">Laden...</span></div>
+      <div><strong>Doelbedrag:</strong> <span id="goalAmount">Laden...</span></div>
+
+      <div id="status" class="loading">Gegevens laden...</div>
     </div>
 
     <div class="grid">
-      <section class="card">
-        <h1>Ouder beheer</h1>
-        <p class="muted">Boek geld af of bij voor De Kinderkluis.</p>
+      <div class="card">
+        <h2>Transactie invoeren</h2>
 
-        <div class="saldo-box">
-          <div class="mini">
-            <div class="mini-label">Kind</div>
-            <div class="mini-value" id="childNameView">Sem</div>
-          </div>
-          <div class="mini">
-            <div class="mini-label">Huidig saldo</div>
-            <div class="mini-value" id="balanceView">€ 0,00</div>
-          </div>
-          <div class="mini">
-            <div class="mini-label">Spaardoel</div>
-            <div class="mini-value" id="goalView">Lego set</div>
-          </div>
+        <div class="quick-buttons">
+          <button class="btn-green" type="button" onclick="setQuick('bij', 0.50)">+ € 0,50</button>
+          <button class="btn-green" type="button" onclick="setQuick('bij', 1.00)">+ € 1,00</button>
+          <button class="btn-red" type="button" onclick="setQuick('af', 0.50)">- € 0,50</button>
+          <button class="btn-red" type="button" onclick="setQuick('af', 1.00)">- € 1,00</button>
         </div>
 
-        <div class="form-grid">
-          <div class="full">
-            <label>Snelbedragen</label>
-            <div class="quick-buttons">
-              <button type="button" class="quick-plus" data-type="bij" data-amount="0.50">+ € 0,50</button>
-              <button type="button" class="quick-plus" data-type="bij" data-amount="1.00">+ € 1,00</button>
-              <button type="button" class="quick-minus" data-type="af" data-amount="0.50">- € 0,50</button>
-              <button type="button" class="quick-minus" data-type="af" data-amount="1.00">- € 1,00</button>
-            </div>
-          </div>
-
-          <div>
-            <label for="type">Type</label>
-            <select id="type">
-              <option value="bij">Bijschrijven</option>
-              <option value="af">Afschrijven</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="amount">Bedrag</label>
-            <input id="amount" type="number" min="0" step="0.01" placeholder="Bijv. 1.50" />
-          </div>
-
-          <div>
-            <label for="category">Categorie</label>
-            <select id="category">
-              <option value="weekgeld">Weekgeld</option>
-              <option value="klusje">Klusje</option>
-              <option value="snoep">Snoep</option>
-              <option value="speelgoed">Speelgoed</option>
-              <option value="schermtijd">Schermtijd</option>
-              <option value="bonus">Bonus</option>
-              <option value="correctie">Correctie</option>
-              <option value="sparen">Sparen</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="device">Apparaat / ouder</label>
-            <input id="device" type="text" placeholder="Bijv. vader iPhone" />
-          </div>
-
-          <div class="full">
-            <label for="note">Omschrijving</label>
-            <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
-          </div>
+        <div class="field">
+          <label for="type">Type</label>
+          <select id="type">
+            <option value="bij">Bijschrijven</option>
+            <option value="af">Afschrijven</option>
+          </select>
         </div>
 
-        <div class="actions">
-          <button class="btn-primary" id="saveBtn" type="button">Transactie opslaan</button>
-          <button class="btn-secondary" id="goalBtn" type="button">Spaardoel aanpassen</button>
-          <button class="btn-danger" id="resetBtn" type="button">Alles resetten</button>
+        <div class="field">
+          <label for="amount">Bedrag</label>
+          <input id="amount" type="number" step="0.01" min="0" placeholder="Bijv. 1.50">
         </div>
 
-        <div id="message" class="message"></div>
-      </section>
-
-      <section class="card">
-        <h2>Laatste transacties</h2>
-        <div class="tx-list" id="txList"></div>
-
-        <div class="small-actions">
-          <button type="button" class="small-btn" id="addWeekgeld">+ Weekgeld € 2,00</button>
-          <button type="button" class="small-btn" id="addKlusje">+ Klusje € 1,00</button>
-          <button type="button" class="small-btn" id="buySnoep">- Snoep € 0,50</button>
-          <button type="button" class="small-btn" id="buySchermtijd">- Schermtijd € 1,00</button>
+        <div class="field">
+          <label for="category">Categorie</label>
+          <select id="category">
+            <option value="weekgeld">Weekgeld</option>
+            <option value="klusje">Klusje</option>
+            <option value="snoep">Snoep</option>
+            <option value="speelgoed">Speelgoed</option>
+            <option value="schermtijd">Schermtijd</option>
+            <option value="bonus">Bonus</option>
+            <option value="correctie">Correctie</option>
+            <option value="sparen">Sparen</option>
+          </select>
         </div>
-      </section>
+
+        <div class="field">
+          <label for="device">Apparaat / ouder</label>
+          <input id="device" type="text" placeholder="Bijv. vader iPhone">
+        </div>
+
+        <div class="field">
+          <label for="note">Omschrijving</label>
+          <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
+        </div>
+
+        <button type="button" onclick="saveTransaction()">Transactie opslaan</button>
+      </div>
+
+      <div class="card">
+        <h2>Snelacties</h2>
+
+        <button type="button" class="btn-green" onclick="quickTransaction('bij', 2.00, 'weekgeld', 'Weekgeld', 'snelknop')">+ Weekgeld € 2,00</button>
+        <button type="button" class="btn-green" onclick="quickTransaction('bij', 1.00, 'klusje', 'Klusje gedaan', 'snelknop')">+ Klusje € 1,00</button>
+        <button type="button" class="btn-red" onclick="quickTransaction('af', 0.50, 'snoep', 'Snoep', 'snelknop')">- Snoep € 0,50</button>
+        <button type="button" class="btn-red" onclick="quickTransaction('af', 1.00, 'schermtijd', 'Extra schermtijd', 'snelknop')">- Schermtijd € 1,00</button>
+
+        <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
+
+        <h2>Spaardoel aanpassen</h2>
+
+        <div class="field">
+          <label for="newGoalName">Nieuw spaardoel</label>
+          <input id="newGoalName" type="text" placeholder="Bijv. Lego set">
+        </div>
+
+        <div class="field">
+          <label for="newGoalAmount">Nieuw doelbedrag</label>
+          <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+        </div>
+
+        <button type="button" onclick="updateGoal()">Spaardoel opslaan</button>
+
+        <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
+
+        <button type="button" class="btn-danger" onclick="resetDemo()">Demo resetten</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Laatste transacties</h2>
+      <div id="transactions"></div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "de_kinderkluis_data_v1";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
 
-    function euro(amount){
+    function euro(amount) {
       return new Intl.NumberFormat("nl-NL", {
         style: "currency",
         currency: "EUR"
-      }).format(amount);
+      }).format(Number(amount || 0));
     }
 
-    function formatDate(iso){
-      const date = new Date(iso);
+    function formatDate(value) {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return value || "-";
       return new Intl.DateTimeFormat("nl-NL", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit"
-      }).format(date);
+      }).format(d);
     }
 
-    function defaultData(){
-      return {
-        childName: "Sem",
-        balance: 7.50,
-        savingsGoalName: "Lego set",
-        savingsGoalAmount: 12.00,
-        transactions: [
-          { id: Date.now()-3000, type:"bij", amount: 2.00, category:"weekgeld", note:"Weekgeld", device:"systeem", createdAt: new Date(Date.now()-3000).toISOString() },
-          { id: Date.now()-2000, type:"af", amount: 0.50, category:"snoep", note:"Snoep", device:"systeem", createdAt: new Date(Date.now()-2000).toISOString() },
-          { id: Date.now()-1000, type:"bij", amount: 1.00, category:"klusje", note:"Kamer opgeruimd", device:"systeem", createdAt: new Date(Date.now()-1000).toISOString() }
-        ]
-      };
+    function setStatus(message, type) {
+      const status = document.getElementById("status");
+      status.className = type;
+      status.textContent = message;
     }
 
-    function getData(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw){
-        const data = defaultData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return data;
+    function setQuick(type, amount) {
+      document.getElementById("type").value = type;
+      document.getElementById("amount").value = amount.toFixed(2);
+    }
+
+    async function apiGetState() {
+      const response = await fetch(API_URL + "?action=state");
+      const text = await response.text();
+      const data = JSON.parse(text);
+
+      if (!data.ok) {
+        throw new Error(data.error || "Fout bij laden");
       }
-      try {
-        return JSON.parse(raw);
-      } catch {
-        const data = defaultData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return data;
+
+      return data;
+    }
+
+    async function apiPost(payload) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const text = await response.text();
+      const data = JSON.parse(text);
+
+      if (!data.ok) {
+        throw new Error(data.error || "Onbekende fout");
       }
+
+      return data;
     }
 
-    function saveData(data){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
+    function renderState(data) {
+      document.getElementById("childName").textContent = data.childName || "-";
+      document.getElementById("balance").textContent = euro(data.balance);
+      document.getElementById("goalName").textContent = data.savingsGoalName || "-";
+      document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
 
-    function showMessage(text, kind="success"){
-      const el = document.getElementById("message");
-      el.textContent = text;
-      el.className = `message show ${kind}`;
-      setTimeout(() => {
-        el.className = "message";
-      }, 2600);
-    }
+      document.getElementById("newGoalName").value = data.savingsGoalName || "";
+      document.getElementById("newGoalAmount").value = Number(data.savingsGoalAmount || 0).toFixed(2);
 
-    function render(){
-      const data = getData();
+      const txBox = document.getElementById("transactions");
+      txBox.innerHTML = "";
 
-      document.getElementById("childNameView").textContent = data.childName;
-      document.getElementById("balanceView").textContent = euro(data.balance);
-      document.getElementById("goalView").textContent = data.savingsGoalName;
-
-      const txList = document.getElementById("txList");
-      txList.innerHTML = "";
-
-      const sorted = [...data.transactions].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      if(sorted.length === 0){
-        txList.innerHTML = `<div class="muted">Nog geen transacties.</div>`;
+      if (!data.transactions || data.transactions.length === 0) {
+        txBox.innerHTML = '<div class="muted">Nog geen transacties gevonden.</div>';
         return;
       }
 
-      sorted.slice(0, 12).forEach(tx => {
+      data.transactions.slice(0, 15).forEach(function(tx) {
         const sign = tx.type === "bij" ? "+" : "-";
-        const amountClass = tx.type === "bij" ? "plus" : "minus";
+        const cls = tx.type === "bij" ? "plus" : "minus";
 
-        const item = document.createElement("div");
-        item.className = "tx-item";
-        item.innerHTML = `
-          <div>
-            <div class="tx-title">${tx.note || tx.category || "Transactie"}</div>
-            <div class="tx-meta">
-              Categorie: ${tx.category || "-"}<br>
-              Apparaat: ${tx.device || "-"}<br>
-              ${formatDate(tx.createdAt)}
-            </div>
-          </div>
-          <div class="tx-amount ${amountClass}">${sign} ${euro(tx.amount)}</div>
-        `;
-        txList.appendChild(item);
+        const div = document.createElement("div");
+        div.className = "tx-item";
+        div.innerHTML =
+          "<div><strong>" + (tx.note || tx.category || "Transactie") + "</strong></div>" +
+          "<div class='muted'>Categorie: " + (tx.category || "-") + "</div>" +
+          "<div class='muted'>Apparaat: " + (tx.device || "-") + "</div>" +
+          "<div class='muted'>" + formatDate(tx.createdAt) + "</div>" +
+          "<div class='" + cls + "'>" + sign + " " + euro(tx.amount) + "</div>";
+
+        txBox.appendChild(div);
       });
     }
 
-    function addTransaction(type, amount, category, note, device){
-      const data = getData();
-      const numericAmount = Number(amount);
-
-      if(!numericAmount || numericAmount <= 0){
-        showMessage("Voer een geldig bedrag in.");
-        return;
+    async function loadState() {
+      try {
+        setStatus("Gegevens laden...", "loading");
+        const data = await apiGetState();
+        renderState(data);
+        setStatus("Gegevens geladen.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij laden: " + error.message, "error");
       }
-
-      if(type === "af" && data.balance < numericAmount){
-        showMessage("Onvoldoende saldo.");
-        return;
-      }
-
-      if(type === "bij"){
-        data.balance += numericAmount;
-      } else {
-        data.balance -= numericAmount;
-      }
-
-      data.balance = Math.round(data.balance * 100) / 100;
-
-      data.transactions.push({
-        id: Date.now(),
-        type,
-        amount: numericAmount,
-        category: category || "",
-        note: note || "",
-        device: device || "",
-        createdAt: new Date().toISOString()
-      });
-
-      saveData(data);
-      render();
-      showMessage(`Transactie opgeslagen: ${type === "bij" ? "bij" : "af"} ${euro(numericAmount)}`);
     }
 
-    document.querySelectorAll("[data-type]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.getElementById("type").value = btn.dataset.type;
-        document.getElementById("amount").value = btn.dataset.amount;
-      });
-    });
-
-    document.getElementById("saveBtn").addEventListener("click", () => {
+    async function saveTransaction() {
       const type = document.getElementById("type").value;
-      const amount = document.getElementById("amount").value;
+      const amount = Number(document.getElementById("amount").value);
       const category = document.getElementById("category").value;
+      const device = document.getElementById("device").value.trim() || "onbekend";
       const note = document.getElementById("note").value.trim();
-      const device = document.getElementById("device").value.trim();
 
-      addTransaction(type, amount, category, note, device);
-
-      document.getElementById("amount").value = "";
-      document.getElementById("note").value = "";
-    });
-
-    document.getElementById("goalBtn").addEventListener("click", () => {
-      const data = getData();
-
-      const newName = prompt("Nieuw spaardoel:", data.savingsGoalName);
-      if(newName === null) return;
-
-      const newAmount = prompt("Nieuw doelbedrag in euro, bijvoorbeeld 15.00:", data.savingsGoalAmount);
-      if(newAmount === null) return;
-
-      const numeric = Number(newAmount);
-      if(!numeric || numeric <= 0){
-        showMessage("Doelbedrag is ongeldig.");
+      if (!amount || amount <= 0) {
+        setStatus("Voer een geldig bedrag in.", "error");
         return;
       }
 
-      data.savingsGoalName = newName.trim() || data.savingsGoalName;
-      data.savingsGoalAmount = Math.round(numeric * 100) / 100;
-      saveData(data);
-      render();
-      showMessage("Spaardoel aangepast.");
-    });
+      try {
+        setStatus("Transactie opslaan...", "loading");
 
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      const ok = confirm("Weet je zeker dat je alles wilt resetten naar de standaard demo?");
-      if(!ok) return;
-      saveData(defaultData());
-      render();
-      showMessage("Alles is gereset.");
-    });
+        const data = await apiPost({
+          action: "transaction",
+          type: type,
+          amount: amount,
+          category: category,
+          note: note,
+          device: device
+        });
 
-    document.getElementById("addWeekgeld").addEventListener("click", () => {
-      addTransaction("bij", 2.00, "weekgeld", "Weekgeld", "snelknop");
-    });
+        renderState(data);
+        setStatus("Transactie opgeslagen.", "success");
 
-    document.getElementById("addKlusje").addEventListener("click", () => {
-      addTransaction("bij", 1.00, "klusje", "Klusje gedaan", "snelknop");
-    });
+        document.getElementById("amount").value = "";
+        document.getElementById("note").value = "";
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij opslaan: " + error.message, "error");
+      }
+    }
 
-    document.getElementById("buySnoep").addEventListener("click", () => {
-      addTransaction("af", 0.50, "snoep", "Snoep", "snelknop");
-    });
+    async function quickTransaction(type, amount, category, note, device) {
+      try {
+        setStatus("Transactie opslaan...", "loading");
 
-    document.getElementById("buySchermtijd").addEventListener("click", () => {
-      addTransaction("af", 1.00, "schermtijd", "Extra schermtijd", "snelknop");
-    });
+        const data = await apiPost({
+          action: "transaction",
+          type: type,
+          amount: amount,
+          category: category,
+          note: note,
+          device: device
+        });
 
-    render();
+        renderState(data);
+        setStatus("Transactie opgeslagen.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij opslaan: " + error.message, "error");
+      }
+    }
+
+    async function updateGoal() {
+      const goalName = document.getElementById("newGoalName").value.trim();
+      const goalAmount = Number(document.getElementById("newGoalAmount").value);
+
+      if (!goalName) {
+        setStatus("Vul een spaardoel in.", "error");
+        return;
+      }
+
+      if (!goalAmount || goalAmount <= 0) {
+        setStatus("Vul een geldig doelbedrag in.", "error");
+        return;
+      }
+
+      try {
+        setStatus("Spaardoel opslaan...", "loading");
+
+        const data = await apiPost({
+          action: "updategoal",
+          goalName: goalName,
+          goalAmount: goalAmount
+        });
+
+        renderState(data);
+        setStatus("Spaardoel opgeslagen.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij spaardoel opslaan: " + error.message, "error");
+      }
+    }
+
+    async function resetDemo() {
+      const ok = confirm("Weet je zeker dat je de demo wilt resetten?");
+      if (!ok) return;
+
+      try {
+        setStatus("Demo resetten...", "loading");
+
+        const data = await apiPost({
+          action: "resetdemo"
+        });
+
+        renderState(data);
+        setStatus("Demo gereset.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij resetten: " + error.message, "error");
+      }
+    }
+
+    loadState();
   </script>
 </body>
 </html>
