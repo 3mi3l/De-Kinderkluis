@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>De Kinderkluis - Ouder beheer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      margin: 0;
+      padding: 30px 20px;
+    }
+    .wrap {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .saldo {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 16px 0 24px;
+      color: #0f172a;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    button, .back {
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .plus {
+      background: #16a34a;
+      color: white;
+    }
+    .minus {
+      background: #dc2626;
+      color: white;
+    }
+    .back {
+      display: inline-block;
+      text-decoration: none;
+      background: #2563eb;
+      color: white;
+      margin-top: 10px;
+    }
+    .note {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Ouder beheer</h1>
+      <p>Kind: Sem</p>
+      <div class="saldo">Saldo: € 7,50</div>
+
+      <div class="buttons">
+        <button class="plus">+ € 0,50</button>
+        <button class="plus">+ € 1,00</button>
+        <button class="minus">- € 0,50</button>
+        <button class="minus">- € 1,00</button>
+      </div>
+
+      <p class="note">Dit is nog een demo zonder echte opslag.</p>
+
+      <a class="back" href="index.html">Terug</a>
+    </div>
+  </div>
+</body>
+</html>
