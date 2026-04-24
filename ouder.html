@@ -14,7 +14,7 @@
     }
 
     .wrap {
-      max-width: 950px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -44,21 +44,10 @@
       font-size: 1rem;
     }
 
-    .btn-secondary {
-      background: #475569;
-    }
-
-    .btn-danger {
-      background: #dc2626;
-    }
-
-    .btn-green {
-      background: #16a34a;
-    }
-
-    .btn-red {
-      background: #dc2626;
-    }
+    .btn-secondary { background: #475569; }
+    .btn-danger { background: #dc2626; }
+    .btn-green { background: #16a34a; }
+    .btn-red { background: #dc2626; }
 
     .saldo {
       font-size: 2rem;
@@ -67,19 +56,15 @@
       margin: 16px 0;
     }
 
-    .muted {
-      color: #64748b;
-    }
+    .muted { color: #64748b; }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1.1fr 0.9fr;
       gap: 18px;
     }
 
-    .field {
-      margin-bottom: 14px;
-    }
+    .field { margin-bottom: 14px; }
 
     .field label {
       display: block;
@@ -110,7 +95,8 @@
       margin-bottom: 18px;
     }
 
-    .tx-item {
+    .tx-item,
+    .goal-item {
       padding: 12px;
       border-radius: 12px;
       background: #f8fbff;
@@ -118,15 +104,8 @@
       margin-bottom: 10px;
     }
 
-    .plus {
-      color: #16a34a;
-      font-weight: bold;
-    }
-
-    .minus {
-      color: #dc2626;
-      font-weight: bold;
-    }
+    .plus { color: #16a34a; font-weight: bold; }
+    .minus { color: #dc2626; font-weight: bold; }
 
     .error {
       background: #fff1f2;
@@ -155,9 +134,7 @@
       margin-top: 12px;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     .pin-wrap {
       max-width: 460px;
@@ -196,7 +173,11 @@
       margin: 0;
     }
 
-    @media (max-width: 800px) {
+    .goal-actions {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
       .grid {
         grid-template-columns: 1fr;
       }
@@ -245,115 +226,123 @@
         </div>
 
         <h1>Ouder beheer</h1>
-        <p class="muted">Geld af- en bijschrijven voor De Kinderkluis.</p>
+        <p class="muted">Geld af- en bijschrijven en spaardoelen beheren.</p>
 
         <div><strong>Kind:</strong> <span id="childName">Laden...</span></div>
         <div class="saldo">Huidig saldo: <span id="balance">Laden...</span></div>
-        <div><strong>Spaardoel:</strong> <span id="goalName">Laden...</span></div>
-        <div><strong>Doelbedrag:</strong> <span id="goalAmount">Laden...</span></div>
+        <div><strong>Actieve spaardoelen:</strong> <span id="goalsCount">Laden...</span></div>
 
         <div id="status" class="loading">Gegevens laden...</div>
       </div>
 
       <div class="grid">
-        <div class="card">
-          <h2>Transactie invoeren</h2>
+        <div>
+          <div class="card">
+            <h2>Transactie invoeren</h2>
 
-          <div class="quick-buttons">
-            <button class="btn-green" type="button" onclick="setQuick('bij', 0.50)">+ € 0,50</button>
-            <button class="btn-green" type="button" onclick="setQuick('bij', 1.00)">+ € 1,00</button>
-            <button class="btn-red" type="button" onclick="setQuick('af', 0.50)">- € 0,50</button>
-            <button class="btn-red" type="button" onclick="setQuick('af', 1.00)">- € 1,00</button>
+            <div class="quick-buttons">
+              <button class="btn-green" type="button" onclick="setQuick('bij', 0.50)">+ € 0,50</button>
+              <button class="btn-green" type="button" onclick="setQuick('bij', 1.00)">+ € 1,00</button>
+              <button class="btn-red" type="button" onclick="setQuick('af', 0.50)">- € 0,50</button>
+              <button class="btn-red" type="button" onclick="setQuick('af', 1.00)">- € 1,00</button>
+            </div>
+
+            <div class="field">
+              <label for="type">Type</label>
+              <select id="type">
+                <option value="bij">Bijschrijven</option>
+                <option value="af">Afschrijven</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="amount">Bedrag</label>
+              <input id="amount" type="number" step="0.01" min="0" placeholder="Bijv. 1.50">
+            </div>
+
+            <div class="field">
+              <label for="category">Categorie</label>
+              <select id="category">
+                <option value="weekgeld">Weekgeld</option>
+                <option value="klusje">Klusje</option>
+                <option value="snoep">Snoep</option>
+                <option value="speelgoed">Speelgoed</option>
+                <option value="schermtijd">Schermtijd</option>
+                <option value="bonus">Bonus</option>
+                <option value="correctie">Correctie</option>
+                <option value="sparen">Sparen</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="device">Apparaat / ouder</label>
+              <input id="device" type="text" placeholder="Bijv. vader iPhone">
+            </div>
+
+            <div class="field">
+              <label for="note">Omschrijving</label>
+              <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
+            </div>
+
+            <button type="button" onclick="saveTransaction()">Transactie opslaan</button>
           </div>
 
-          <div class="field">
-            <label for="type">Type</label>
-            <select id="type">
-              <option value="bij">Bijschrijven</option>
-              <option value="af">Afschrijven</option>
-            </select>
+          <div class="card">
+            <h2>Laatste transacties</h2>
+            <div id="transactions"></div>
           </div>
-
-          <div class="field">
-            <label for="amount">Bedrag</label>
-            <input id="amount" type="number" step="0.01" min="0" placeholder="Bijv. 1.50">
-          </div>
-
-          <div class="field">
-            <label for="category">Categorie</label>
-            <select id="category">
-              <option value="weekgeld">Weekgeld</option>
-              <option value="klusje">Klusje</option>
-              <option value="snoep">Snoep</option>
-              <option value="speelgoed">Speelgoed</option>
-              <option value="schermtijd">Schermtijd</option>
-              <option value="bonus">Bonus</option>
-              <option value="correctie">Correctie</option>
-              <option value="sparen">Sparen</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="device">Apparaat / ouder</label>
-            <input id="device" type="text" placeholder="Bijv. vader iPhone">
-          </div>
-
-          <div class="field">
-            <label for="note">Omschrijving</label>
-            <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
-          </div>
-
-          <button type="button" onclick="saveTransaction()">Transactie opslaan</button>
         </div>
 
-        <div class="card">
-          <h2>Snelacties</h2>
+        <div>
+          <div class="card">
+            <h2>Snelacties</h2>
 
-          <button type="button" class="btn-green" onclick="quickTransaction('bij', 2.00, 'weekgeld', 'Weekgeld', 'snelknop')">+ Weekgeld € 2,00</button>
-          <button type="button" class="btn-green" onclick="quickTransaction('bij', 1.00, 'klusje', 'Klusje gedaan', 'snelknop')">+ Klusje € 1,00</button>
-          <button type="button" class="btn-red" onclick="quickTransaction('af', 0.50, 'snoep', 'Snoep', 'snelknop')">- Snoep € 0,50</button>
-          <button type="button" class="btn-red" onclick="quickTransaction('af', 1.00, 'schermtijd', 'Extra schermtijd', 'snelknop')">- Schermtijd € 1,00</button>
-
-          <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
-
-          <h2>Spaardoel aanpassen</h2>
-
-          <div class="field">
-            <label for="newGoalName">Nieuw spaardoel</label>
-            <input id="newGoalName" type="text" placeholder="Bijv. Lego set">
+            <button type="button" class="btn-green" onclick="quickTransaction('bij', 2.00, 'weekgeld', 'Weekgeld', 'snelknop')">+ Weekgeld € 2,00</button>
+            <button type="button" class="btn-green" onclick="quickTransaction('bij', 1.00, 'klusje', 'Klusje gedaan', 'snelknop')">+ Klusje € 1,00</button>
+            <button type="button" class="btn-red" onclick="quickTransaction('af', 0.50, 'snoep', 'Snoep', 'snelknop')">- Snoep € 0,50</button>
+            <button type="button" class="btn-red" onclick="quickTransaction('af', 1.00, 'schermtijd', 'Extra schermtijd', 'snelknop')">- Schermtijd € 1,00</button>
           </div>
 
-          <div class="field">
-            <label for="newGoalAmount">Nieuw doelbedrag</label>
-            <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+          <div class="card">
+            <h2>Nieuw spaardoel toevoegen</h2>
+
+            <div class="field">
+              <label for="newGoalName">Naam</label>
+              <input id="newGoalName" type="text" placeholder="Bijv. Lego set">
+            </div>
+
+            <div class="field">
+              <label for="newGoalAmount">Doelbedrag</label>
+              <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+            </div>
+
+            <button type="button" onclick="addGoal()">Spaardoel toevoegen</button>
           </div>
 
-          <button type="button" onclick="updateGoal()">Spaardoel opslaan</button>
-
-          <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
-
-          <button type="button" class="btn-danger" onclick="resetDemo()">Demo resetten</button>
-
-          <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
-
-          <h3>Pincode aanpassen</h3>
-          <div class="field">
-            <label for="newPin">Nieuwe pincode</label>
-            <input id="newPin" type="password" inputmode="numeric" placeholder="Nieuwe pincode">
+          <div class="card">
+            <h2>Spaardoelen beheren</h2>
+            <div id="goalsBox"></div>
           </div>
-          <button type="button" class="btn-secondary" onclick="changePin()">Nieuwe pincode opslaan</button>
+
+          <div class="card">
+            <h3>Pincode aanpassen</h3>
+            <div class="field">
+              <label for="newPin">Nieuwe pincode</label>
+              <input id="newPin" type="password" inputmode="numeric" placeholder="Nieuwe pincode">
+            </div>
+            <button type="button" class="btn-secondary" onclick="changePin()">Nieuwe pincode opslaan</button>
+
+            <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
+
+            <button type="button" class="btn-danger" onclick="resetDemo()">Demo resetten</button>
+          </div>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>Laatste transacties</h2>
-        <div id="transactions"></div>
       </div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyJN6X3xCKHd3SLgSdQjx69KVtjXwVRjGgx3CR0GCXWAdsK5xQ3pKvZcmXV8PElKpL2/exec";
 
     const DEFAULT_PIN = "2580";
     const PIN_KEY = "de_kinderkluis_parent_pin";
@@ -445,8 +434,7 @@
 
     async function apiGetState() {
       const response = await fetch(API_URL + "?action=state");
-      const text = await response.text();
-      const data = JSON.parse(text);
+      const data = await response.json();
 
       if (!data.ok) {
         throw new Error(data.error || "Fout bij laden");
@@ -464,8 +452,7 @@
         body: JSON.stringify(payload)
       });
 
-      const text = await response.text();
-      const data = JSON.parse(text);
+      const data = await response.json();
 
       if (!data.ok) {
         throw new Error(data.error || "Onbekende fout");
@@ -474,15 +461,42 @@
       return data;
     }
 
-    function renderState(data) {
-      document.getElementById("childName").textContent = data.childName || "-";
-      document.getElementById("balance").textContent = euro(data.balance);
-      document.getElementById("goalName").textContent = data.savingsGoalName || "-";
-      document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
+    function renderGoals(data) {
+      const goalsBox = document.getElementById("goalsBox");
+      goalsBox.innerHTML = "";
 
-      document.getElementById("newGoalName").value = data.savingsGoalName || "";
-      document.getElementById("newGoalAmount").value = Number(data.savingsGoalAmount || 0).toFixed(2);
+      const goals = data.goals || [];
+      const activeGoals = goals.filter(goal => goal.active);
 
+      document.getElementById("goalsCount").textContent = String(activeGoals.length);
+
+      if (goals.length === 0) {
+        goalsBox.innerHTML = '<div class="muted">Nog geen spaardoelen gevonden.</div>';
+        return;
+      }
+
+      goals.forEach(goal => {
+        const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
+
+        const div = document.createElement("div");
+        div.className = "goal-item";
+        div.innerHTML = `
+          <div><strong>${goal.name}</strong></div>
+          <div class="muted">Doelbedrag: ${euro(goal.targetAmount)}</div>
+          <div class="muted">Nog nodig: ${euro(remaining)}</div>
+          <div class="muted">Status: ${goal.active ? "Actief" : "Verborgen"}</div>
+          <div class="goal-actions">
+            <button type="button" class="${goal.active ? 'btn-red' : 'btn-green'}" onclick="toggleGoal('${goal.id}')">
+              ${goal.active ? "Verbergen" : "Activeren"}
+            </button>
+            <button type="button" class="btn-danger" onclick="deleteGoal('${goal.id}')">Verwijderen</button>
+          </div>
+        `;
+        goalsBox.appendChild(div);
+      });
+    }
+
+    function renderTransactions(data) {
       const txBox = document.getElementById("transactions");
       txBox.innerHTML = "";
 
@@ -506,6 +520,13 @@
 
         txBox.appendChild(div);
       });
+    }
+
+    function renderState(data) {
+      document.getElementById("childName").textContent = data.childName || "-";
+      document.getElementById("balance").textContent = euro(data.balance);
+      renderGoals(data);
+      renderTransactions(data);
     }
 
     async function loadState() {
@@ -576,12 +597,12 @@
       }
     }
 
-    async function updateGoal() {
+    async function addGoal() {
       const goalName = document.getElementById("newGoalName").value.trim();
       const goalAmount = Number(document.getElementById("newGoalAmount").value);
 
       if (!goalName) {
-        setStatus("Vul een spaardoel in.", "error");
+        setStatus("Vul een naam voor het spaardoel in.", "error");
         return;
       }
 
@@ -591,19 +612,58 @@
       }
 
       try {
-        setStatus("Spaardoel opslaan...", "loading");
+        setStatus("Spaardoel toevoegen...", "loading");
 
         const data = await apiPost({
-          action: "updategoal",
+          action: "addgoal",
           goalName: goalName,
           goalAmount: goalAmount
         });
 
         renderState(data);
-        setStatus("Spaardoel opgeslagen.", "success");
+        setStatus("Spaardoel toegevoegd.", "success");
+        document.getElementById("newGoalName").value = "";
+        document.getElementById("newGoalAmount").value = "";
       } catch (error) {
         console.error(error);
-        setStatus("Fout bij spaardoel opslaan: " + error.message, "error");
+        setStatus("Fout bij toevoegen van spaardoel: " + error.message, "error");
+      }
+    }
+
+    async function toggleGoal(goalId) {
+      try {
+        setStatus("Spaardoel aanpassen...", "loading");
+
+        const data = await apiPost({
+          action: "togglegoal",
+          goalId: goalId
+        });
+
+        renderState(data);
+        setStatus("Spaardoel bijgewerkt.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij aanpassen van spaardoel: " + error.message, "error");
+      }
+    }
+
+    async function deleteGoal(goalId) {
+      const ok = confirm("Weet je zeker dat je dit spaardoel wilt verwijderen?");
+      if (!ok) return;
+
+      try {
+        setStatus("Spaardoel verwijderen...", "loading");
+
+        const data = await apiPost({
+          action: "deletegoal",
+          goalId: goalId
+        });
+
+        renderState(data);
+        setStatus("Spaardoel verwijderd.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Fout bij verwijderen van spaardoel: " + error.message, "error");
       }
     }
 
