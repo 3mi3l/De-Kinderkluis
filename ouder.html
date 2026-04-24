@@ -26,7 +26,7 @@
       margin-bottom: 18px;
     }
 
-    h1, h2 {
+    h1, h2, h3 {
       margin-top: 0;
     }
 
@@ -155,6 +155,47 @@
       margin-top: 12px;
     }
 
+    .hidden {
+      display: none;
+    }
+
+    .pin-wrap {
+      max-width: 460px;
+      margin: 40px auto;
+    }
+
+    .pin-title {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .pin-input {
+      font-size: 1.2rem !important;
+      text-align: center;
+      letter-spacing: 6px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0 16px;
+      color: #475569;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      margin: 0;
+    }
+
     @media (max-width: 800px) {
       .grid {
         grid-template-columns: 1fr;
@@ -168,110 +209,155 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <a class="btn" href="index.html">← Start</a>
-      <a class="btn btn-secondary" href="saldo.html">Bekijk saldo</a>
 
-      <h1>Ouder beheer</h1>
-      <p class="muted">Geld af- en bijschrijven voor De Kinderkluis.</p>
-
-      <div><strong>Kind:</strong> <span id="childName">Laden...</span></div>
-      <div class="saldo">Huidig saldo: <span id="balance">Laden...</span></div>
-      <div><strong>Spaardoel:</strong> <span id="goalName">Laden...</span></div>
-      <div><strong>Doelbedrag:</strong> <span id="goalAmount">Laden...</span></div>
-
-      <div id="status" class="loading">Gegevens laden...</div>
-    </div>
-
-    <div class="grid">
+    <div id="pinScreen" class="pin-wrap">
       <div class="card">
-        <h2>Transactie invoeren</h2>
-
-        <div class="quick-buttons">
-          <button class="btn-green" type="button" onclick="setQuick('bij', 0.50)">+ € 0,50</button>
-          <button class="btn-green" type="button" onclick="setQuick('bij', 1.00)">+ € 1,00</button>
-          <button class="btn-red" type="button" onclick="setQuick('af', 0.50)">- € 0,50</button>
-          <button class="btn-red" type="button" onclick="setQuick('af', 1.00)">- € 1,00</button>
-        </div>
+        <h1 class="pin-title">Ouder toegang</h1>
+        <p class="muted">Voer de pincode in om De Kinderkluis te beheren.</p>
 
         <div class="field">
-          <label for="type">Type</label>
-          <select id="type">
-            <option value="bij">Bijschrijven</option>
-            <option value="af">Afschrijven</option>
-          </select>
+          <label for="pinInput">Pincode</label>
+          <input id="pinInput" class="pin-input" type="password" inputmode="numeric" placeholder="****" maxlength="12">
         </div>
 
-        <div class="field">
-          <label for="amount">Bedrag</label>
-          <input id="amount" type="number" step="0.01" min="0" placeholder="Bijv. 1.50">
-        </div>
+        <label class="checkbox-row">
+          <input id="rememberPin" type="checkbox">
+          <span>Onthoud op dit toestel</span>
+        </label>
 
-        <div class="field">
-          <label for="category">Categorie</label>
-          <select id="category">
-            <option value="weekgeld">Weekgeld</option>
-            <option value="klusje">Klusje</option>
-            <option value="snoep">Snoep</option>
-            <option value="speelgoed">Speelgoed</option>
-            <option value="schermtijd">Schermtijd</option>
-            <option value="bonus">Bonus</option>
-            <option value="correctie">Correctie</option>
-            <option value="sparen">Sparen</option>
-          </select>
-        </div>
+        <button type="button" onclick="unlockApp()">Ontgrendelen</button>
+        <a class="btn btn-secondary" href="index.html">Terug</a>
 
-        <div class="field">
-          <label for="device">Apparaat / ouder</label>
-          <input id="device" type="text" placeholder="Bijv. vader iPhone">
-        </div>
-
-        <div class="field">
-          <label for="note">Omschrijving</label>
-          <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
-        </div>
-
-        <button type="button" onclick="saveTransaction()">Transactie opslaan</button>
-      </div>
-
-      <div class="card">
-        <h2>Snelacties</h2>
-
-        <button type="button" class="btn-green" onclick="quickTransaction('bij', 2.00, 'weekgeld', 'Weekgeld', 'snelknop')">+ Weekgeld € 2,00</button>
-        <button type="button" class="btn-green" onclick="quickTransaction('bij', 1.00, 'klusje', 'Klusje gedaan', 'snelknop')">+ Klusje € 1,00</button>
-        <button type="button" class="btn-red" onclick="quickTransaction('af', 0.50, 'snoep', 'Snoep', 'snelknop')">- Snoep € 0,50</button>
-        <button type="button" class="btn-red" onclick="quickTransaction('af', 1.00, 'schermtijd', 'Extra schermtijd', 'snelknop')">- Schermtijd € 1,00</button>
-
-        <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
-
-        <h2>Spaardoel aanpassen</h2>
-
-        <div class="field">
-          <label for="newGoalName">Nieuw spaardoel</label>
-          <input id="newGoalName" type="text" placeholder="Bijv. Lego set">
-        </div>
-
-        <div class="field">
-          <label for="newGoalAmount">Nieuw doelbedrag</label>
-          <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
-        </div>
-
-        <button type="button" onclick="updateGoal()">Spaardoel opslaan</button>
-
-        <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
-
-        <button type="button" class="btn-danger" onclick="resetDemo()">Demo resetten</button>
+        <div id="pinStatus" class="hidden"></div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>Laatste transacties</h2>
-      <div id="transactions"></div>
+    <div id="appScreen" class="hidden">
+      <div class="card">
+        <div class="top-actions">
+          <div>
+            <a class="btn" href="index.html">← Start</a>
+            <a class="btn btn-secondary" href="saldo.html">Bekijk saldo</a>
+          </div>
+          <div>
+            <button type="button" class="btn-danger" onclick="logoutApp()">Uitloggen</button>
+          </div>
+        </div>
+
+        <h1>Ouder beheer</h1>
+        <p class="muted">Geld af- en bijschrijven voor De Kinderkluis.</p>
+
+        <div><strong>Kind:</strong> <span id="childName">Laden...</span></div>
+        <div class="saldo">Huidig saldo: <span id="balance">Laden...</span></div>
+        <div><strong>Spaardoel:</strong> <span id="goalName">Laden...</span></div>
+        <div><strong>Doelbedrag:</strong> <span id="goalAmount">Laden...</span></div>
+
+        <div id="status" class="loading">Gegevens laden...</div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Transactie invoeren</h2>
+
+          <div class="quick-buttons">
+            <button class="btn-green" type="button" onclick="setQuick('bij', 0.50)">+ € 0,50</button>
+            <button class="btn-green" type="button" onclick="setQuick('bij', 1.00)">+ € 1,00</button>
+            <button class="btn-red" type="button" onclick="setQuick('af', 0.50)">- € 0,50</button>
+            <button class="btn-red" type="button" onclick="setQuick('af', 1.00)">- € 1,00</button>
+          </div>
+
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="bij">Bijschrijven</option>
+              <option value="af">Afschrijven</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="amount">Bedrag</label>
+            <input id="amount" type="number" step="0.01" min="0" placeholder="Bijv. 1.50">
+          </div>
+
+          <div class="field">
+            <label for="category">Categorie</label>
+            <select id="category">
+              <option value="weekgeld">Weekgeld</option>
+              <option value="klusje">Klusje</option>
+              <option value="snoep">Snoep</option>
+              <option value="speelgoed">Speelgoed</option>
+              <option value="schermtijd">Schermtijd</option>
+              <option value="bonus">Bonus</option>
+              <option value="correctie">Correctie</option>
+              <option value="sparen">Sparen</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="device">Apparaat / ouder</label>
+            <input id="device" type="text" placeholder="Bijv. vader iPhone">
+          </div>
+
+          <div class="field">
+            <label for="note">Omschrijving</label>
+            <textarea id="note" placeholder="Bijv. tafel gedekt, ijsje gekocht, weekgeld zondag"></textarea>
+          </div>
+
+          <button type="button" onclick="saveTransaction()">Transactie opslaan</button>
+        </div>
+
+        <div class="card">
+          <h2>Snelacties</h2>
+
+          <button type="button" class="btn-green" onclick="quickTransaction('bij', 2.00, 'weekgeld', 'Weekgeld', 'snelknop')">+ Weekgeld € 2,00</button>
+          <button type="button" class="btn-green" onclick="quickTransaction('bij', 1.00, 'klusje', 'Klusje gedaan', 'snelknop')">+ Klusje € 1,00</button>
+          <button type="button" class="btn-red" onclick="quickTransaction('af', 0.50, 'snoep', 'Snoep', 'snelknop')">- Snoep € 0,50</button>
+          <button type="button" class="btn-red" onclick="quickTransaction('af', 1.00, 'schermtijd', 'Extra schermtijd', 'snelknop')">- Schermtijd € 1,00</button>
+
+          <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
+
+          <h2>Spaardoel aanpassen</h2>
+
+          <div class="field">
+            <label for="newGoalName">Nieuw spaardoel</label>
+            <input id="newGoalName" type="text" placeholder="Bijv. Lego set">
+          </div>
+
+          <div class="field">
+            <label for="newGoalAmount">Nieuw doelbedrag</label>
+            <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+          </div>
+
+          <button type="button" onclick="updateGoal()">Spaardoel opslaan</button>
+
+          <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
+
+          <button type="button" class="btn-danger" onclick="resetDemo()">Demo resetten</button>
+
+          <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
+
+          <h3>Pincode aanpassen</h3>
+          <div class="field">
+            <label for="newPin">Nieuwe pincode</label>
+            <input id="newPin" type="password" inputmode="numeric" placeholder="Nieuwe pincode">
+          </div>
+          <button type="button" class="btn-secondary" onclick="changePin()">Nieuwe pincode opslaan</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Laatste transacties</h2>
+        <div id="transactions"></div>
+      </div>
     </div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
+
+    const DEFAULT_PIN = "2580";
+    const PIN_KEY = "de_kinderkluis_parent_pin";
+    const AUTH_KEY = "de_kinderkluis_parent_auth";
 
     function euro(amount) {
       return new Intl.NumberFormat("nl-NL", {
@@ -292,10 +378,64 @@
       }).format(d);
     }
 
+    function getSavedPin() {
+      return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
+    }
+
+    function setSavedPin(pin) {
+      localStorage.setItem(PIN_KEY, pin);
+    }
+
+    function showPinStatus(message, type) {
+      const el = document.getElementById("pinStatus");
+      el.className = type;
+      el.textContent = message;
+    }
+
     function setStatus(message, type) {
       const status = document.getElementById("status");
       status.className = type;
       status.textContent = message;
+    }
+
+    function showApp() {
+      document.getElementById("pinScreen").classList.add("hidden");
+      document.getElementById("appScreen").classList.remove("hidden");
+      loadState();
+    }
+
+    function showPinScreen() {
+      document.getElementById("appScreen").classList.add("hidden");
+      document.getElementById("pinScreen").classList.remove("hidden");
+    }
+
+    function unlockApp() {
+      const input = document.getElementById("pinInput").value.trim();
+      const remember = document.getElementById("rememberPin").checked;
+      const currentPin = getSavedPin();
+
+      if (input === currentPin) {
+        if (remember) {
+          localStorage.setItem(AUTH_KEY, "true");
+        } else {
+          sessionStorage.setItem(AUTH_KEY, "true");
+        }
+        showApp();
+      } else {
+        showPinStatus("Foute pincode.", "error");
+      }
+    }
+
+    function logoutApp() {
+      localStorage.removeItem(AUTH_KEY);
+      sessionStorage.removeItem(AUTH_KEY);
+      document.getElementById("pinInput").value = "";
+      showPinStatus("", "hidden");
+      showPinScreen();
+    }
+
+    function isAuthenticated() {
+      return localStorage.getItem(AUTH_KEY) === "true" || sessionStorage.getItem(AUTH_KEY) === "true";
     }
 
     function setQuick(type, amount) {
@@ -486,7 +626,30 @@
       }
     }
 
-    loadState();
+    function changePin() {
+      const newPin = document.getElementById("newPin").value.trim();
+
+      if (!newPin) {
+        setStatus("Vul een nieuwe pincode in.", "error");
+        return;
+      }
+
+      setSavedPin(newPin);
+      document.getElementById("newPin").value = "";
+      setStatus("Nieuwe pincode opgeslagen.", "success");
+    }
+
+    document.getElementById("pinInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        unlockApp();
+      }
+    });
+
+    if (isAuthenticated()) {
+      showApp();
+    } else {
+      showPinScreen();
+    }
   </script>
 </body>
 </html>
