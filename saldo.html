@@ -5,349 +5,160 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>De Kinderkluis - Saldo</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #eef4ff;
-      color: #1e293b;
-      padding: 20px;
-    }
-
-    .wrap {
-      max-width: 850px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      margin-bottom: 18px;
-    }
-
-    h1, h2 {
-      margin-top: 0;
-    }
-
-    .btn, button {
-      display: inline-block;
-      text-decoration: none;
-      background: #2563eb;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 10px;
-      margin-right: 8px;
-      margin-bottom: 8px;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .btn-green {
-      background: #16a34a;
-    }
-
-    .saldo {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #16a34a;
-      margin: 16px 0;
-    }
-
-    .muted {
-      color: #64748b;
-    }
-
-    .tx-item {
-      padding: 12px;
-      border-radius: 12px;
-      background: #f8fbff;
-      border: 1px solid #dbe7ff;
-      margin-bottom: 10px;
-    }
-
-    .plus {
-      color: #16a34a;
-      font-weight: bold;
-    }
-
-    .minus {
-      color: #dc2626;
-      font-weight: bold;
-    }
-
-    .error {
-      background: #fff1f2;
-      color: #b91c1c;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #fecdd3;
-    }
-
-    .success {
-      background: #f0fdf4;
-      color: #166534;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #bbf7d0;
-    }
-
-    .loading {
-      background: #eff6ff;
-      color: #1d4ed8;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #bfdbfe;
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    .field label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      box-sizing: border-box;
-      font-size: 1rem;
-    }
-
-    .progress-wrap {
-      margin-top: 16px;
-    }
-
-    .progress {
-      width: 100%;
-      height: 20px;
-      background: #dbe7ff;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #2563eb, #60a5fa);
-      transition: width 0.3s ease;
-    }
-
-    .goal-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .mini-card {
-      background: #f8fbff;
-      border: 1px solid #dbe7ff;
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .mini-label {
-      font-size: 0.9rem;
-      color: #64748b;
-      margin-bottom: 6px;
-    }
-
-    .mini-value {
-      font-size: 1.15rem;
-      font-weight: bold;
-    }
-
-    @media (max-width: 700px) {
-      .goal-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    body { margin:0; font-family:Arial,sans-serif; background:#eef4ff; color:#1e293b; padding:20px; }
+    .wrap { max-width:900px; margin:0 auto; }
+    .card { background:#fff; border-radius:18px; padding:24px; box-shadow:0 8px 24px rgba(0,0,0,.08); margin-bottom:18px; }
+    .btn, button { display:inline-block; text-decoration:none; background:#2563eb; color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-size:1rem; margin-right:8px; margin-bottom:8px; }
+    .btn-green { background:#16a34a; }
+    .btn-red { background:#dc2626; }
+    .saldo { font-size:2.5rem; font-weight:bold; color:#16a34a; margin:16px 0; }
+    .muted { color:#64748b; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-weight:bold; margin-bottom:6px; }
+    .field input { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px; box-sizing:border-box; font-size:1rem; }
+    .goal-item, .tx-item { padding:14px; border-radius:12px; background:#f8fbff; border:1px solid #dbe7ff; margin-bottom:10px; }
+    .goal-actions { margin-top:10px; }
+    .status, .error, .success, .loading { padding:12px; border-radius:12px; margin-top:12px; }
+    .loading { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+    .error { background:#fff1f2; color:#b91c1c; border:1px solid #fecdd3; }
+    .success { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <a class="btn" href="index.html">← Start</a>
-
       <h1 id="title">De Kinderkluis</h1>
       <p class="muted">Jouw spaargeld en spaardoelen</p>
-
       <div class="saldo" id="saldo">Laden...</div>
-
-      <div><strong>Huidig spaardoel:</strong> <span id="goalName">Laden...</span></div>
-
-      <div class="progress-wrap">
-        <div class="muted" id="goalPercentText">Voortgang laden...</div>
-        <div class="progress">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-      </div>
-
-      <div class="goal-grid">
-        <div class="mini-card">
-          <div class="mini-label">Doelbedrag</div>
-          <div class="mini-value" id="goalAmount">Laden...</div>
-        </div>
-        <div class="mini-card">
-          <div class="mini-label">Gespaard</div>
-          <div class="mini-value" id="savedAmount">Laden...</div>
-        </div>
-        <div class="mini-card">
-          <div class="mini-label">Nog nodig</div>
-          <div class="mini-value" id="remaining">Laden...</div>
-        </div>
-      </div>
+      <div id="pageStatus" class="loading">Gegevens laden...</div>
     </div>
 
     <div class="card">
       <h2>Nieuw spaardoel maken</h2>
-      <p class="muted">Hier kun je zelf een nieuw spaardoel kiezen. Dit vervangt het huidige doel.</p>
-
       <div class="field">
         <label for="newGoalName">Naam van je spaardoel</label>
         <input id="newGoalName" type="text" placeholder="Bijv. Lego auto">
       </div>
-
       <div class="field">
         <label for="newGoalAmount">Bedrag van je spaardoel</label>
         <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
       </div>
+      <button class="btn-green" type="button" onclick="saveGoal()">Spaardoel toevoegen</button>
+      <div id="goalStatus" class="loading">Klaar om te laden...</div>
+    </div>
 
-      <button class="btn-green" type="button" onclick="saveGoal()">Spaardoel opslaan</button>
-
-      <div id="goalStatus" class="loading" style="margin-top:12px;">Klaar om te laden...</div>
+    <div class="card">
+      <h2>Mijn spaardoelen</h2>
+      <div id="goalsBox"></div>
     </div>
 
     <div class="card">
       <h2>Laatste transacties</h2>
-      <div id="status" class="loading">Gegevens laden...</div>
       <div id="transactions"></div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyJN6X3xCKHd3SLgSdQjx69KVtjXwVRjGgx3CR0GCXWAdsK5xQ3pKvZcmXV8PElKpL2/exec";
 
     function euro(amount) {
-      return new Intl.NumberFormat("nl-NL", {
-        style: "currency",
-        currency: "EUR"
-      }).format(Number(amount || 0));
+      return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(Number(amount || 0));
     }
 
     function formatDate(value) {
       const d = new Date(value);
       if (isNaN(d.getTime())) return value || "-";
       return new Intl.DateTimeFormat("nl-NL", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
+        day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
       }).format(d);
     }
 
-    function setGoalStatus(message, type) {
+    function setGoalStatus(message, cls) {
       const el = document.getElementById("goalStatus");
-      el.className = type;
+      el.className = cls;
       el.textContent = message;
     }
 
     async function apiGetState() {
       const response = await fetch(API_URL + "?action=state");
-      const text = await response.text();
-      const data = JSON.parse(text);
-
-      if (!data.ok) {
-        throw new Error(data.error || "Fout bij laden");
-      }
-
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.error || "Fout bij laden");
       return data;
     }
 
     async function apiPost(payload) {
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-
-      const text = await response.text();
-      const data = JSON.parse(text);
-
-      if (!data.ok) {
-        throw new Error(data.error || "Onbekende fout");
-      }
-
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.error || "Onbekende fout");
       return data;
     }
 
     function renderState(data) {
       document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Sem");
       document.getElementById("saldo").textContent = euro(data.balance);
-      document.getElementById("goalName").textContent = data.savingsGoalName || "-";
-      document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
-      document.getElementById("savedAmount").textContent = euro(data.balance);
 
-      const remaining = Math.max(0, Number(data.savingsGoalAmount || 0) - Number(data.balance || 0));
-      document.getElementById("remaining").textContent = euro(remaining);
+      const goalsBox = document.getElementById("goalsBox");
+      goalsBox.innerHTML = "";
 
-      const percent = Number(data.savingsGoalAmount || 0) > 0
-        ? Math.min(100, Math.round((Number(data.balance || 0) / Number(data.savingsGoalAmount || 0)) * 100))
-        : 0;
+      const activeGoals = (data.goals || []).filter(g => g.active);
 
-      document.getElementById("goalPercentText").textContent = "Voortgang: " + percent + "%";
-      document.getElementById("progressBar").style.width = percent + "%";
+      if (activeGoals.length === 0) {
+        goalsBox.innerHTML = '<div class="muted">Nog geen actieve spaardoelen.</div>';
+      } else {
+        activeGoals.forEach(goal => {
+          const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
+          const percent = Number(goal.targetAmount || 0) > 0
+            ? Math.min(100, Math.round((Number(data.balance || 0) / Number(goal.targetAmount || 0)) * 100))
+            : 0;
 
-      const txBox = document.getElementById("transactions");
-      const status = document.getElementById("status");
-
-      status.style.display = "none";
-      txBox.innerHTML = "";
-
-      if (!data.transactions || data.transactions.length === 0) {
-        txBox.innerHTML = '<div class="muted">Nog geen transacties gevonden.</div>';
-        return;
+          const div = document.createElement("div");
+          div.className = "goal-item";
+          div.innerHTML = `
+            <div><strong>${goal.name}</strong></div>
+            <div class="muted">Doelbedrag: ${euro(goal.targetAmount)}</div>
+            <div class="muted">Gespaard: ${euro(data.balance)}</div>
+            <div class="muted">Nog nodig: ${euro(remaining)}</div>
+            <div class="muted">Voortgang: ${percent}%</div>
+            <div class="goal-actions">
+              <button class="btn-red" onclick="toggleGoal('${goal.id}')">Verbergen</button>
+            </div>
+          `;
+          goalsBox.appendChild(div);
+        });
       }
 
-      data.transactions.slice(0, 10).forEach(function(tx) {
+      const txBox = document.getElementById("transactions");
+      txBox.innerHTML = "";
+      (data.transactions || []).slice(0, 10).forEach(tx => {
         const sign = tx.type === "bij" ? "+" : "-";
-        const cls = tx.type === "bij" ? "plus" : "minus";
-
         const div = document.createElement("div");
         div.className = "tx-item";
-        div.innerHTML =
-          "<div><strong>" + (tx.note || tx.category || "Transactie") + "</strong></div>" +
-          "<div class='muted'>Categorie: " + (tx.category || "-") + "</div>" +
-          "<div class='muted'>" + formatDate(tx.createdAt) + "</div>" +
-          "<div class='" + cls + "'>" + sign + " " + euro(tx.amount) + "</div>";
-
+        div.innerHTML = `
+          <div><strong>${tx.note || tx.category || "Transactie"}</strong></div>
+          <div class="muted">Categorie: ${tx.category || "-"}</div>
+          <div class="muted">${formatDate(tx.createdAt)}</div>
+          <div><strong>${sign} ${euro(tx.amount)}</strong></div>
+        `;
         txBox.appendChild(div);
       });
+
+      document.getElementById("pageStatus").className = "success";
+      document.getElementById("pageStatus").textContent = "Gegevens geladen.";
     }
 
     async function loadData() {
-      const status = document.getElementById("status");
-
       try {
-        status.textContent = "Gegevens laden...";
         const data = await apiGetState();
         renderState(data);
-        setGoalStatus("Je kunt hieronder een nieuw spaardoel maken.", "success");
+        setGoalStatus("Je kunt hieronder nieuwe spaardoelen toevoegen.", "success");
       } catch (error) {
-        status.className = "error";
-        status.textContent = "Fout bij laden: " + error.message;
-        console.error(error);
+        document.getElementById("pageStatus").className = "error";
+        document.getElementById("pageStatus").textContent = "Fout bij laden: " + error.message;
       }
     }
 
@@ -367,20 +178,30 @@
 
       try {
         setGoalStatus("Spaardoel opslaan...", "loading");
-
         const data = await apiPost({
-          action: "updategoal",
+          action: "addgoal",
           goalName: goalName,
           goalAmount: goalAmount
         });
-
-        renderState(data);
         document.getElementById("newGoalName").value = "";
         document.getElementById("newGoalAmount").value = "";
+        renderState(data);
         setGoalStatus("Nieuw spaardoel opgeslagen.", "success");
       } catch (error) {
-        console.error(error);
         setGoalStatus("Fout bij opslaan: " + error.message, "error");
+      }
+    }
+
+    async function toggleGoal(goalId) {
+      try {
+        const data = await apiPost({
+          action: "togglegoal",
+          goalId: goalId
+        });
+        renderState(data);
+      } catch (error) {
+        document.getElementById("pageStatus").className = "error";
+        document.getElementById("pageStatus").textContent = "Fout: " + error.message;
       }
     }
 
