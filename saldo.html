@@ -14,7 +14,7 @@
     }
 
     .wrap {
-      max-width: 800px;
+      max-width: 850px;
       margin: 0 auto;
     }
 
@@ -30,7 +30,7 @@
       margin-top: 0;
     }
 
-    .btn {
+    .btn, button {
       display: inline-block;
       text-decoration: none;
       background: #2563eb;
@@ -39,6 +39,13 @@
       border-radius: 10px;
       margin-right: 8px;
       margin-bottom: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-green {
+      background: #16a34a;
     }
 
     .saldo {
@@ -78,6 +85,14 @@
       border: 1px solid #fecdd3;
     }
 
+    .success {
+      background: #f0fdf4;
+      color: #166534;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #bbf7d0;
+    }
+
     .loading {
       background: #eff6ff;
       color: #1d4ed8;
@@ -85,22 +100,130 @@
       border-radius: 12px;
       border: 1px solid #bfdbfe;
     }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    .progress-wrap {
+      margin-top: 16px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 20px;
+      background: #dbe7ff;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      transition: width 0.3s ease;
+    }
+
+    .goal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .mini-card {
+      background: #f8fbff;
+      border: 1px solid #dbe7ff;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .mini-label {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .mini-value {
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
+
+    @media (max-width: 700px) {
+      .goal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <a class="btn" href="index.html">← Start</a>
-      <a class="btn" href="ouder.html">Ouder beheer</a>
 
       <h1 id="title">De Kinderkluis</h1>
-      <p class="muted">Jouw spaargeld en uitgaven</p>
+      <p class="muted">Jouw spaargeld en spaardoelen</p>
 
       <div class="saldo" id="saldo">Laden...</div>
 
-      <p><strong>Spaardoel:</strong> <span id="goalName">Laden...</span></p>
-      <p><strong>Doelbedrag:</strong> <span id="goalAmount">Laden...</span></p>
-      <p><strong>Nog nodig:</strong> <span id="remaining">Laden...</span></p>
+      <div><strong>Huidig spaardoel:</strong> <span id="goalName">Laden...</span></div>
+
+      <div class="progress-wrap">
+        <div class="muted" id="goalPercentText">Voortgang laden...</div>
+        <div class="progress">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="goal-grid">
+        <div class="mini-card">
+          <div class="mini-label">Doelbedrag</div>
+          <div class="mini-value" id="goalAmount">Laden...</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-label">Gespaard</div>
+          <div class="mini-value" id="savedAmount">Laden...</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-label">Nog nodig</div>
+          <div class="mini-value" id="remaining">Laden...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Nieuw spaardoel maken</h2>
+      <p class="muted">Hier kun je zelf een nieuw spaardoel kiezen. Dit vervangt het huidige doel.</p>
+
+      <div class="field">
+        <label for="newGoalName">Naam van je spaardoel</label>
+        <input id="newGoalName" type="text" placeholder="Bijv. Lego auto">
+      </div>
+
+      <div class="field">
+        <label for="newGoalAmount">Bedrag van je spaardoel</label>
+        <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+      </div>
+
+      <button class="btn-green" type="button" onclick="saveGoal()">Spaardoel opslaan</button>
+
+      <div id="goalStatus" class="loading" style="margin-top:12px;">Klaar om te laden...</div>
     </div>
 
     <div class="card">
@@ -132,65 +255,132 @@
       }).format(d);
     }
 
+    function setGoalStatus(message, type) {
+      const el = document.getElementById("goalStatus");
+      el.className = type;
+      el.textContent = message;
+    }
+
+    async function apiGetState() {
+      const response = await fetch(API_URL + "?action=state");
+      const text = await response.text();
+      const data = JSON.parse(text);
+
+      if (!data.ok) {
+        throw new Error(data.error || "Fout bij laden");
+      }
+
+      return data;
+    }
+
+    async function apiPost(payload) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const text = await response.text();
+      const data = JSON.parse(text);
+
+      if (!data.ok) {
+        throw new Error(data.error || "Onbekende fout");
+      }
+
+      return data;
+    }
+
+    function renderState(data) {
+      document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Sem");
+      document.getElementById("saldo").textContent = euro(data.balance);
+      document.getElementById("goalName").textContent = data.savingsGoalName || "-";
+      document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
+      document.getElementById("savedAmount").textContent = euro(data.balance);
+
+      const remaining = Math.max(0, Number(data.savingsGoalAmount || 0) - Number(data.balance || 0));
+      document.getElementById("remaining").textContent = euro(remaining);
+
+      const percent = Number(data.savingsGoalAmount || 0) > 0
+        ? Math.min(100, Math.round((Number(data.balance || 0) / Number(data.savingsGoalAmount || 0)) * 100))
+        : 0;
+
+      document.getElementById("goalPercentText").textContent = "Voortgang: " + percent + "%";
+      document.getElementById("progressBar").style.width = percent + "%";
+
+      const txBox = document.getElementById("transactions");
+      const status = document.getElementById("status");
+
+      status.style.display = "none";
+      txBox.innerHTML = "";
+
+      if (!data.transactions || data.transactions.length === 0) {
+        txBox.innerHTML = '<div class="muted">Nog geen transacties gevonden.</div>';
+        return;
+      }
+
+      data.transactions.slice(0, 10).forEach(function(tx) {
+        const sign = tx.type === "bij" ? "+" : "-";
+        const cls = tx.type === "bij" ? "plus" : "minus";
+
+        const div = document.createElement("div");
+        div.className = "tx-item";
+        div.innerHTML =
+          "<div><strong>" + (tx.note || tx.category || "Transactie") + "</strong></div>" +
+          "<div class='muted'>Categorie: " + (tx.category || "-") + "</div>" +
+          "<div class='muted'>" + formatDate(tx.createdAt) + "</div>" +
+          "<div class='" + cls + "'>" + sign + " " + euro(tx.amount) + "</div>";
+
+        txBox.appendChild(div);
+      });
+    }
+
     async function loadData() {
       const status = document.getElementById("status");
-      const txBox = document.getElementById("transactions");
 
       try {
         status.textContent = "Gegevens laden...";
-
-        const response = await fetch(API_URL + "?action=state", {
-          method: "GET"
-        });
-
-        const text = await response.text();
-        let data;
-
-        try {
-          data = JSON.parse(text);
-        } catch (jsonError) {
-          throw new Error("API gaf geen geldige JSON terug: " + text);
-        }
-
-        if (!data.ok) {
-          throw new Error(data.error || "Onbekende fout vanuit Apps Script");
-        }
-
-        document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Sem");
-        document.getElementById("saldo").textContent = euro(data.balance);
-        document.getElementById("goalName").textContent = data.savingsGoalName || "-";
-        document.getElementById("goalAmount").textContent = euro(data.savingsGoalAmount);
-
-        const remaining = Math.max(0, Number(data.savingsGoalAmount || 0) - Number(data.balance || 0));
-        document.getElementById("remaining").textContent = euro(remaining);
-
-        status.style.display = "none";
-        txBox.innerHTML = "";
-
-        if (!data.transactions || data.transactions.length === 0) {
-          txBox.innerHTML = '<div class="muted">Nog geen transacties gevonden.</div>';
-          return;
-        }
-
-        data.transactions.slice(0, 10).forEach(function(tx) {
-          const sign = tx.type === "bij" ? "+" : "-";
-          const cls = tx.type === "bij" ? "plus" : "minus";
-
-          const div = document.createElement("div");
-          div.className = "tx-item";
-          div.innerHTML =
-            "<div><strong>" + (tx.note || tx.category || "Transactie") + "</strong></div>" +
-            "<div class='muted'>Categorie: " + (tx.category || "-") + "</div>" +
-            "<div class='muted'>" + formatDate(tx.createdAt) + "</div>" +
-            "<div class='" + cls + "'>" + sign + " " + euro(tx.amount) + "</div>";
-
-          txBox.appendChild(div);
-        });
-
+        const data = await apiGetState();
+        renderState(data);
+        setGoalStatus("Je kunt hieronder een nieuw spaardoel maken.", "success");
       } catch (error) {
         status.className = "error";
         status.textContent = "Fout bij laden: " + error.message;
         console.error(error);
+      }
+    }
+
+    async function saveGoal() {
+      const goalName = document.getElementById("newGoalName").value.trim();
+      const goalAmount = Number(document.getElementById("newGoalAmount").value);
+
+      if (!goalName) {
+        setGoalStatus("Vul een naam voor je spaardoel in.", "error");
+        return;
+      }
+
+      if (!goalAmount || goalAmount <= 0) {
+        setGoalStatus("Vul een geldig doelbedrag in.", "error");
+        return;
+      }
+
+      try {
+        setGoalStatus("Spaardoel opslaan...", "loading");
+
+        const data = await apiPost({
+          action: "updategoal",
+          goalName: goalName,
+          goalAmount: goalAmount
+        });
+
+        renderState(data);
+        document.getElementById("newGoalName").value = "";
+        document.getElementById("newGoalAmount").value = "";
+        setGoalStatus("Nieuw spaardoel opgeslagen.", "success");
+      } catch (error) {
+        console.error(error);
+        setGoalStatus("Fout bij opslaan: " + error.message, "error");
       }
     }
 
