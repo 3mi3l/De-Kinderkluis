@@ -83,8 +83,9 @@
     }
 
     .stat-value{
-      font-size:1.55rem;
+      font-size:1.25rem;
       font-weight:700;
+      line-height:1.3;
     }
 
     .actions{
@@ -157,6 +158,31 @@
       font-size:.95rem;
     }
 
+    .goals-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .goal-item{
+      background:#f8fbff;
+      border:1px solid #dbe7ff;
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .goal-name{
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .goal-meta{
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.5;
+    }
+
     @media (max-width: 760px){
       .section{
         grid-template-columns:1fr;
@@ -179,12 +205,12 @@
           <div class="stat-value" id="homeSaldo">Laden...</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Spaardoel</div>
-          <div class="stat-value" id="homeDoel">Laden...</div>
+          <div class="stat-label">Aantal spaardoelen</div>
+          <div class="stat-value" id="homeGoalsCount">Laden...</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Nog nodig</div>
-          <div class="stat-value" id="homeNogNodig">Laden...</div>
+          <div class="stat-label">Eerstvolgend doel</div>
+          <div class="stat-value" id="homeFirstGoal">Laden...</div>
         </div>
       </div>
 
@@ -201,22 +227,22 @@
         <h2>Hoe werkt het?</h2>
         <ol class="list">
           <li>Scan de pas op een ouder-iPhone om geld af of bij te schrijven.</li>
-          <li>Scan de pas op de familie-iPhone om alleen het saldo te bekijken.</li>
-          <li>Alle apparaten lezen nu uit dezelfde online Kinderkluis-database.</li>
+          <li>Scan de pas op de familie-iPhone om saldo en spaardoelen te bekijken.</li>
+          <li>Meerdere apparaten lezen uit dezelfde online Kinderkluis-database.</li>
         </ol>
       </div>
 
       <div class="card">
-        <h2>Overzicht</h2>
-        <p class="small">
-          Deze startpagina leest live mee met het saldo en het spaardoel uit Google Apps Script en Google Sheets.
-        </p>
+        <h2>Actieve spaardoelen</h2>
+        <div id="goalsList" class="goals-list">
+          <div class="small">Gegevens laden...</div>
+        </div>
       </div>
     </section>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyoEpe894fRAeV0Mxft7zzEIUcoNuwvfSpcr70fGoax9-PyLJUMBs81LjoQCQP6CQMT/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyJN6X3xCKHd3SLgSdQjx69KVtjXwVRjGgx3CR0GCXWAdsK5xQ3pKvZcmXV8PElKpL2/exec";
 
     function euro(amount){
       return new Intl.NumberFormat("nl-NL", {
@@ -227,32 +253,48 @@
 
     async function loadState(){
       const response = await fetch(API_URL + "?action=state");
-      const text = await response.text();
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error("API gaf geen geldige JSON terug.");
-      }
+      const data = await response.json();
 
       if (!data.ok) {
         throw new Error(data.error || "Fout bij laden");
       }
 
-      const remaining = Math.max(0, Number(data.savingsGoalAmount || 0) - Number(data.balance || 0));
+      const activeGoals = (data.goals || []).filter(goal => goal.active);
 
       document.getElementById("homeSaldo").textContent = euro(data.balance);
-      document.getElementById("homeDoel").textContent = data.savingsGoalName || "-";
-      document.getElementById("homeNogNodig").textContent = euro(remaining);
+      document.getElementById("homeGoalsCount").textContent = String(activeGoals.length);
+      document.getElementById("homeFirstGoal").textContent = activeGoals.length > 0 ? activeGoals[0].name : "Geen doel";
       document.getElementById("pageStatus").textContent = "Gegevens geladen.";
+
+      const goalsList = document.getElementById("goalsList");
+      goalsList.innerHTML = "";
+
+      if (activeGoals.length === 0) {
+        goalsList.innerHTML = `<div class="small">Er zijn nog geen actieve spaardoelen.</div>`;
+        return;
+      }
+
+      activeGoals.slice(0, 5).forEach(goal => {
+        const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
+        const div = document.createElement("div");
+        div.className = "goal-item";
+        div.innerHTML = `
+          <div class="goal-name">${goal.name}</div>
+          <div class="goal-meta">
+            Doelbedrag: ${euro(goal.targetAmount)}<br>
+            Nog nodig: ${euro(remaining)}
+          </div>
+        `;
+        goalsList.appendChild(div);
+      });
     }
 
     loadState().catch(err => {
       document.getElementById("homeSaldo").textContent = "Fout";
-      document.getElementById("homeDoel").textContent = "Fout";
-      document.getElementById("homeNogNodig").textContent = "Fout";
+      document.getElementById("homeGoalsCount").textContent = "Fout";
+      document.getElementById("homeFirstGoal").textContent = "Fout";
       document.getElementById("pageStatus").textContent = "Fout bij laden: " + err.message;
+      document.getElementById("goalsList").innerHTML = `<div class="small">Kon spaardoelen niet laden.</div>`;
       console.error(err);
     });
   </script>
