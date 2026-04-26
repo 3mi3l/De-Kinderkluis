@@ -12,184 +12,110 @@
       --muted:#5e6b85;
       --primary:#2b6fff;
       --primary-dark:#1f57cc;
+      --success:#16a34a;
       --shadow:0 12px 32px rgba(16,24,40,.12);
       --radius:20px;
     }
-
     *{box-sizing:border-box}
-
     body{
       margin:0;
       font-family:Arial, Helvetica, sans-serif;
       background:linear-gradient(180deg,#eef4ff 0%, #f8fbff 100%);
       color:var(--text);
     }
-
     .wrap{
-      max-width:900px;
+      max-width:1000px;
       margin:0 auto;
       padding:28px 18px 40px;
     }
-
-    .hero{
+    .hero,.card{
       background:var(--card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:28px;
-      overflow:hidden;
-      position:relative;
+      padding:24px;
     }
-
-    .hero::after{
-      content:"";
-      position:absolute;
-      right:-40px;
-      top:-40px;
-      width:180px;
-      height:180px;
-      background:radial-gradient(circle, rgba(43,111,255,.18), rgba(43,111,255,0));
-      border-radius:50%;
-    }
-
-    h1{
-      margin:0 0 8px;
-      font-size:2.1rem;
-    }
-
+    .hero{margin-bottom:20px;}
+    h1,h2{margin-top:0;}
     .tagline{
-      margin:0 0 20px;
+      margin:0 0 18px;
       color:var(--muted);
-      font-size:1.05rem;
     }
-
     .status-grid{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
       gap:14px;
-      margin:22px 0 26px;
+      margin:20px 0 24px;
     }
-
     .stat{
       background:#f7faff;
       border:1px solid #e5edff;
       border-radius:16px;
       padding:16px;
     }
-
     .stat-label{
       color:var(--muted);
       font-size:.95rem;
       margin-bottom:6px;
     }
-
     .stat-value{
       font-size:1.25rem;
       font-weight:700;
       line-height:1.3;
     }
-
     .actions{
       display:flex;
       gap:12px;
       flex-wrap:wrap;
     }
-
     .btn{
       display:inline-block;
       text-decoration:none;
-      border:none;
-      cursor:pointer;
       padding:14px 18px;
       border-radius:14px;
       font-weight:700;
       font-size:1rem;
-      transition:.15s ease;
     }
-
     .btn-primary{
       background:var(--primary);
       color:#fff;
     }
-
-    .btn-primary:hover{
-      background:var(--primary-dark);
-    }
-
     .btn-secondary{
       background:#eef3ff;
       color:var(--primary);
     }
-
-    .section{
-      margin-top:22px;
+    .grid{
       display:grid;
-      grid-template-columns:1.2fr .8fr;
+      grid-template-columns:1fr 1fr;
       gap:18px;
     }
-
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:22px;
+    .goal-item,.chore-item{
+      background:#f8fbff;
+      border:1px solid #dbe7ff;
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:10px;
     }
-
-    .card h2{
-      margin:0 0 14px;
-      font-size:1.2rem;
+    .item-title{
+      font-weight:700;
+      margin-bottom:4px;
     }
-
-    .list{
-      margin:0;
-      padding-left:18px;
-      color:var(--text);
-      line-height:1.6;
+    .item-meta{
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.5;
     }
-
     .small{
       color:var(--muted);
       font-size:.95rem;
       line-height:1.5;
     }
-
     .status{
       margin-top:14px;
       color:var(--muted);
       font-size:.95rem;
     }
-
-    .goals-list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:14px;
-    }
-
-    .goal-item{
-      background:#f8fbff;
-      border:1px solid #dbe7ff;
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .goal-name{
-      font-weight:700;
-      margin-bottom:4px;
-    }
-
-    .goal-meta{
-      color:var(--muted);
-      font-size:.92rem;
-      line-height:1.5;
-    }
-
-    @media (max-width: 760px){
-      .section{
-        grid-template-columns:1fr;
-      }
-      h1{
-        font-size:1.8rem;
-      }
+    @media (max-width: 820px){
+      .grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -197,7 +123,7 @@
   <div class="wrap">
     <section class="hero">
       <h1>De Kinderkluis</h1>
-      <p class="tagline">Scan. Kijk. Spaar. Betaal.</p>
+      <p class="tagline">Scan. Kijk. Spaar. Verdien.</p>
 
       <div class="status-grid">
         <div class="stat">
@@ -205,12 +131,12 @@
           <div class="stat-value" id="homeSaldo">Laden...</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Aantal spaardoelen</div>
+          <div class="stat-label">Actieve spaardoelen</div>
           <div class="stat-value" id="homeGoalsCount">Laden...</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Eerstvolgend doel</div>
-          <div class="stat-value" id="homeFirstGoal">Laden...</div>
+          <div class="stat-label">Beschikbare klusjes</div>
+          <div class="stat-value" id="homeChoresCount">Laden...</div>
         </div>
       </div>
 
@@ -222,19 +148,17 @@
       <div class="status" id="pageStatus">Gegevens laden...</div>
     </section>
 
-    <section class="section">
+    <section class="grid">
       <div class="card">
-        <h2>Hoe werkt het?</h2>
-        <ol class="list">
-          <li>Scan de pas op een ouder-iPhone om geld af of bij te schrijven.</li>
-          <li>Scan de pas op de familie-iPhone om saldo en spaardoelen te bekijken.</li>
-          <li>Meerdere apparaten lezen uit dezelfde online Kinderkluis-database.</li>
-        </ol>
+        <h2>Actieve spaardoelen</h2>
+        <div id="goalsList">
+          <div class="small">Gegevens laden...</div>
+        </div>
       </div>
 
       <div class="card">
-        <h2>Actieve spaardoelen</h2>
-        <div id="goalsList" class="goals-list">
+        <h2>Populaire klusjes</h2>
+        <div id="choresList">
           <div class="small">Gegevens laden...</div>
         </div>
       </div>
@@ -255,15 +179,14 @@
       const response = await fetch(API_URL + "?action=state");
       const data = await response.json();
 
-      if (!data.ok) {
-        throw new Error(data.error || "Fout bij laden");
-      }
+      if (!data.ok) throw new Error(data.error || "Fout bij laden");
 
       const activeGoals = (data.goals || []).filter(goal => goal.active);
+      const activeChores = (data.chores || []).filter(chore => chore.active);
 
       document.getElementById("homeSaldo").textContent = euro(data.balance);
       document.getElementById("homeGoalsCount").textContent = String(activeGoals.length);
-      document.getElementById("homeFirstGoal").textContent = activeGoals.length > 0 ? activeGoals[0].name : "Geen doel";
+      document.getElementById("homeChoresCount").textContent = String(activeChores.length);
       document.getElementById("pageStatus").textContent = "Gegevens geladen.";
 
       const goalsList = document.getElementById("goalsList");
@@ -271,30 +194,48 @@
 
       if (activeGoals.length === 0) {
         goalsList.innerHTML = `<div class="small">Er zijn nog geen actieve spaardoelen.</div>`;
-        return;
+      } else {
+        activeGoals.slice(0, 5).forEach(goal => {
+          const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
+          const div = document.createElement("div");
+          div.className = "goal-item";
+          div.innerHTML = `
+            <div class="item-title">${goal.name}</div>
+            <div class="item-meta">
+              Doelbedrag: ${euro(goal.targetAmount)}<br>
+              Nog nodig: ${euro(remaining)}
+            </div>
+          `;
+          goalsList.appendChild(div);
+        });
       }
 
-      activeGoals.slice(0, 5).forEach(goal => {
-        const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
-        const div = document.createElement("div");
-        div.className = "goal-item";
-        div.innerHTML = `
-          <div class="goal-name">${goal.name}</div>
-          <div class="goal-meta">
-            Doelbedrag: ${euro(goal.targetAmount)}<br>
-            Nog nodig: ${euro(remaining)}
-          </div>
-        `;
-        goalsList.appendChild(div);
-      });
+      const choresList = document.getElementById("choresList");
+      choresList.innerHTML = "";
+
+      if (activeChores.length === 0) {
+        choresList.innerHTML = `<div class="small">Er zijn nog geen actieve klusjes.</div>`;
+      } else {
+        activeChores.slice(0, 6).forEach(chore => {
+          const div = document.createElement("div");
+          div.className = "chore-item";
+          div.innerHTML = `
+            <div class="item-title">${chore.name}</div>
+            <div class="item-meta">
+              Beloning: ${euro(chore.reward)}<br>
+              Schermtijdwaarde: ${chore.screenMinutes || 0} minuten
+            </div>
+          `;
+          choresList.appendChild(div);
+        });
+      }
     }
 
     loadState().catch(err => {
       document.getElementById("homeSaldo").textContent = "Fout";
       document.getElementById("homeGoalsCount").textContent = "Fout";
-      document.getElementById("homeFirstGoal").textContent = "Fout";
+      document.getElementById("homeChoresCount").textContent = "Fout";
       document.getElementById("pageStatus").textContent = "Fout bij laden: " + err.message;
-      document.getElementById("goalsList").innerHTML = `<div class="small">Kon spaardoelen niet laden.</div>`;
       console.error(err);
     });
   </script>
