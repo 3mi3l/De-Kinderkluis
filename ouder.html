@@ -12,12 +12,10 @@
       color: #1e293b;
       padding: 20px;
     }
-
     .wrap {
-      max-width: 1100px;
+      max-width: 1150px;
       margin: 0 auto;
     }
-
     .card {
       background: #ffffff;
       border-radius: 18px;
@@ -25,11 +23,7 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
       margin-bottom: 18px;
     }
-
-    h1, h2, h3 {
-      margin-top: 0;
-    }
-
+    h1, h2, h3 { margin-top: 0; }
     .btn, button {
       display: inline-block;
       text-decoration: none;
@@ -43,7 +37,6 @@
       cursor: pointer;
       font-size: 1rem;
     }
-
     .btn-secondary { background: #475569; }
     .btn-danger { background: #dc2626; }
     .btn-green { background: #16a34a; }
@@ -55,7 +48,6 @@
       color: #0f172a;
       margin: 16px 0;
     }
-
     .muted { color: #64748b; }
 
     .grid {
@@ -65,13 +57,11 @@
     }
 
     .field { margin-bottom: 14px; }
-
     .field label {
       display: block;
       font-weight: bold;
       margin-bottom: 6px;
     }
-
     .field input,
     .field select,
     .field textarea {
@@ -82,7 +72,6 @@
       box-sizing: border-box;
       font-size: 1rem;
     }
-
     .field textarea {
       min-height: 90px;
       resize: vertical;
@@ -95,8 +84,7 @@
       margin-bottom: 18px;
     }
 
-    .tx-item,
-    .goal-item {
+    .tx-item, .goal-item, .chore-item, .rate-item {
       padding: 12px;
       border-radius: 12px;
       background: #f8fbff;
@@ -173,18 +161,13 @@
       margin: 0;
     }
 
-    .goal-actions {
+    .goal-actions, .chore-actions {
       margin-top: 10px;
     }
 
     @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .quick-buttons {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .grid { grid-template-columns: 1fr; }
+      .quick-buttons { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -226,11 +209,12 @@
         </div>
 
         <h1>Ouder beheer</h1>
-        <p class="muted">Geld af- en bijschrijven en spaardoelen beheren.</p>
+        <p class="muted">Klusjes afvinken, schermtijd verkopen, saldo beheren en doelen aanpassen.</p>
 
         <div><strong>Kind:</strong> <span id="childName">Laden...</span></div>
         <div class="saldo">Huidig saldo: <span id="balance">Laden...</span></div>
         <div><strong>Actieve spaardoelen:</strong> <span id="goalsCount">Laden...</span></div>
+        <div><strong>Beschikbare klusjes:</strong> <span id="choresCount">Laden...</span></div>
 
         <div id="status" class="loading">Gegevens laden...</div>
       </div>
@@ -295,17 +279,17 @@
 
         <div>
           <div class="card">
-            <h2>Snelacties</h2>
+            <h2>Snelacties schermtijd</h2>
+            <div id="ratesBox"></div>
+          </div>
 
-            <button type="button" class="btn-green" onclick="quickTransaction('bij', 2.00, 'weekgeld', 'Weekgeld', 'snelknop')">+ Weekgeld € 2,00</button>
-            <button type="button" class="btn-green" onclick="quickTransaction('bij', 1.00, 'klusje', 'Klusje gedaan', 'snelknop')">+ Klusje € 1,00</button>
-            <button type="button" class="btn-red" onclick="quickTransaction('af', 0.50, 'snoep', 'Snoep', 'snelknop')">- Snoep € 0,50</button>
-            <button type="button" class="btn-red" onclick="quickTransaction('af', 1.00, 'schermtijd', 'Extra schermtijd', 'snelknop')">- Schermtijd € 1,00</button>
+          <div class="card">
+            <h2>Klusjes afvinken</h2>
+            <div id="choresBox"></div>
           </div>
 
           <div class="card">
             <h2>Nieuw spaardoel toevoegen</h2>
-
             <div class="field">
               <label for="newGoalName">Naam</label>
               <input id="newGoalName" type="text" placeholder="Bijv. Lego set">
@@ -330,386 +314,4 @@
               <label for="newPin">Nieuwe pincode</label>
               <input id="newPin" type="password" inputmode="numeric" placeholder="Nieuwe pincode">
             </div>
-            <button type="button" class="btn-secondary" onclick="changePin()">Nieuwe pincode opslaan</button>
-
-            <hr style="margin:20px 0; border:none; border-top:1px solid #e2e8f0;">
-
-            <button type="button" class="btn-danger" onclick="resetDemo()">Demo resetten</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyJN6X3xCKHd3SLgSdQjx69KVtjXwVRjGgx3CR0GCXWAdsK5xQ3pKvZcmXV8PElKpL2/exec";
-
-    const DEFAULT_PIN = "2580";
-    const PIN_KEY = "de_kinderkluis_parent_pin";
-    const AUTH_KEY = "de_kinderkluis_parent_auth";
-
-    function euro(amount) {
-      return new Intl.NumberFormat("nl-NL", {
-        style: "currency",
-        currency: "EUR"
-      }).format(Number(amount || 0));
-    }
-
-    function formatDate(value) {
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return value || "-";
-      return new Intl.DateTimeFormat("nl-NL", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).format(d);
-    }
-
-    function getSavedPin() {
-      return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
-    }
-
-    function setSavedPin(pin) {
-      localStorage.setItem(PIN_KEY, pin);
-    }
-
-    function showPinStatus(message, type) {
-      const el = document.getElementById("pinStatus");
-      el.className = type;
-      el.textContent = message;
-    }
-
-    function setStatus(message, type) {
-      const status = document.getElementById("status");
-      status.className = type;
-      status.textContent = message;
-    }
-
-    function showApp() {
-      document.getElementById("pinScreen").classList.add("hidden");
-      document.getElementById("appScreen").classList.remove("hidden");
-      loadState();
-    }
-
-    function showPinScreen() {
-      document.getElementById("appScreen").classList.add("hidden");
-      document.getElementById("pinScreen").classList.remove("hidden");
-    }
-
-    function unlockApp() {
-      const input = document.getElementById("pinInput").value.trim();
-      const remember = document.getElementById("rememberPin").checked;
-      const currentPin = getSavedPin();
-
-      if (input === currentPin) {
-        if (remember) {
-          localStorage.setItem(AUTH_KEY, "true");
-        } else {
-          sessionStorage.setItem(AUTH_KEY, "true");
-        }
-        showApp();
-      } else {
-        showPinStatus("Foute pincode.", "error");
-      }
-    }
-
-    function logoutApp() {
-      localStorage.removeItem(AUTH_KEY);
-      sessionStorage.removeItem(AUTH_KEY);
-      document.getElementById("pinInput").value = "";
-      showPinStatus("", "hidden");
-      showPinScreen();
-    }
-
-    function isAuthenticated() {
-      return localStorage.getItem(AUTH_KEY) === "true" || sessionStorage.getItem(AUTH_KEY) === "true";
-    }
-
-    function setQuick(type, amount) {
-      document.getElementById("type").value = type;
-      document.getElementById("amount").value = amount.toFixed(2);
-    }
-
-    async function apiGetState() {
-      const response = await fetch(API_URL + "?action=state");
-      const data = await response.json();
-
-      if (!data.ok) {
-        throw new Error(data.error || "Fout bij laden");
-      }
-
-      return data;
-    }
-
-    async function apiPost(payload) {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-
-      if (!data.ok) {
-        throw new Error(data.error || "Onbekende fout");
-      }
-
-      return data;
-    }
-
-    function renderGoals(data) {
-      const goalsBox = document.getElementById("goalsBox");
-      goalsBox.innerHTML = "";
-
-      const goals = data.goals || [];
-      const activeGoals = goals.filter(goal => goal.active);
-
-      document.getElementById("goalsCount").textContent = String(activeGoals.length);
-
-      if (goals.length === 0) {
-        goalsBox.innerHTML = '<div class="muted">Nog geen spaardoelen gevonden.</div>';
-        return;
-      }
-
-      goals.forEach(goal => {
-        const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
-
-        const div = document.createElement("div");
-        div.className = "goal-item";
-        div.innerHTML = `
-          <div><strong>${goal.name}</strong></div>
-          <div class="muted">Doelbedrag: ${euro(goal.targetAmount)}</div>
-          <div class="muted">Nog nodig: ${euro(remaining)}</div>
-          <div class="muted">Status: ${goal.active ? "Actief" : "Verborgen"}</div>
-          <div class="goal-actions">
-            <button type="button" class="${goal.active ? 'btn-red' : 'btn-green'}" onclick="toggleGoal('${goal.id}')">
-              ${goal.active ? "Verbergen" : "Activeren"}
-            </button>
-            <button type="button" class="btn-danger" onclick="deleteGoal('${goal.id}')">Verwijderen</button>
-          </div>
-        `;
-        goalsBox.appendChild(div);
-      });
-    }
-
-    function renderTransactions(data) {
-      const txBox = document.getElementById("transactions");
-      txBox.innerHTML = "";
-
-      if (!data.transactions || data.transactions.length === 0) {
-        txBox.innerHTML = '<div class="muted">Nog geen transacties gevonden.</div>';
-        return;
-      }
-
-      data.transactions.slice(0, 15).forEach(function(tx) {
-        const sign = tx.type === "bij" ? "+" : "-";
-        const cls = tx.type === "bij" ? "plus" : "minus";
-
-        const div = document.createElement("div");
-        div.className = "tx-item";
-        div.innerHTML =
-          "<div><strong>" + (tx.note || tx.category || "Transactie") + "</strong></div>" +
-          "<div class='muted'>Categorie: " + (tx.category || "-") + "</div>" +
-          "<div class='muted'>Apparaat: " + (tx.device || "-") + "</div>" +
-          "<div class='muted'>" + formatDate(tx.createdAt) + "</div>" +
-          "<div class='" + cls + "'>" + sign + " " + euro(tx.amount) + "</div>";
-
-        txBox.appendChild(div);
-      });
-    }
-
-    function renderState(data) {
-      document.getElementById("childName").textContent = data.childName || "-";
-      document.getElementById("balance").textContent = euro(data.balance);
-      renderGoals(data);
-      renderTransactions(data);
-    }
-
-    async function loadState() {
-      try {
-        setStatus("Gegevens laden...", "loading");
-        const data = await apiGetState();
-        renderState(data);
-        setStatus("Gegevens geladen.", "success");
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij laden: " + error.message, "error");
-      }
-    }
-
-    async function saveTransaction() {
-      const type = document.getElementById("type").value;
-      const amount = Number(document.getElementById("amount").value);
-      const category = document.getElementById("category").value;
-      const device = document.getElementById("device").value.trim() || "onbekend";
-      const note = document.getElementById("note").value.trim();
-
-      if (!amount || amount <= 0) {
-        setStatus("Voer een geldig bedrag in.", "error");
-        return;
-      }
-
-      try {
-        setStatus("Transactie opslaan...", "loading");
-
-        const data = await apiPost({
-          action: "transaction",
-          type: type,
-          amount: amount,
-          category: category,
-          note: note,
-          device: device
-        });
-
-        renderState(data);
-        setStatus("Transactie opgeslagen.", "success");
-
-        document.getElementById("amount").value = "";
-        document.getElementById("note").value = "";
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij opslaan: " + error.message, "error");
-      }
-    }
-
-    async function quickTransaction(type, amount, category, note, device) {
-      try {
-        setStatus("Transactie opslaan...", "loading");
-
-        const data = await apiPost({
-          action: "transaction",
-          type: type,
-          amount: amount,
-          category: category,
-          note: note,
-          device: device
-        });
-
-        renderState(data);
-        setStatus("Transactie opgeslagen.", "success");
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij opslaan: " + error.message, "error");
-      }
-    }
-
-    async function addGoal() {
-      const goalName = document.getElementById("newGoalName").value.trim();
-      const goalAmount = Number(document.getElementById("newGoalAmount").value);
-
-      if (!goalName) {
-        setStatus("Vul een naam voor het spaardoel in.", "error");
-        return;
-      }
-
-      if (!goalAmount || goalAmount <= 0) {
-        setStatus("Vul een geldig doelbedrag in.", "error");
-        return;
-      }
-
-      try {
-        setStatus("Spaardoel toevoegen...", "loading");
-
-        const data = await apiPost({
-          action: "addgoal",
-          goalName: goalName,
-          goalAmount: goalAmount
-        });
-
-        renderState(data);
-        setStatus("Spaardoel toegevoegd.", "success");
-        document.getElementById("newGoalName").value = "";
-        document.getElementById("newGoalAmount").value = "";
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij toevoegen van spaardoel: " + error.message, "error");
-      }
-    }
-
-    async function toggleGoal(goalId) {
-      try {
-        setStatus("Spaardoel aanpassen...", "loading");
-
-        const data = await apiPost({
-          action: "togglegoal",
-          goalId: goalId
-        });
-
-        renderState(data);
-        setStatus("Spaardoel bijgewerkt.", "success");
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij aanpassen van spaardoel: " + error.message, "error");
-      }
-    }
-
-    async function deleteGoal(goalId) {
-      const ok = confirm("Weet je zeker dat je dit spaardoel wilt verwijderen?");
-      if (!ok) return;
-
-      try {
-        setStatus("Spaardoel verwijderen...", "loading");
-
-        const data = await apiPost({
-          action: "deletegoal",
-          goalId: goalId
-        });
-
-        renderState(data);
-        setStatus("Spaardoel verwijderd.", "success");
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij verwijderen van spaardoel: " + error.message, "error");
-      }
-    }
-
-    async function resetDemo() {
-      const ok = confirm("Weet je zeker dat je de demo wilt resetten?");
-      if (!ok) return;
-
-      try {
-        setStatus("Demo resetten...", "loading");
-
-        const data = await apiPost({
-          action: "resetdemo"
-        });
-
-        renderState(data);
-        setStatus("Demo gereset.", "success");
-      } catch (error) {
-        console.error(error);
-        setStatus("Fout bij resetten: " + error.message, "error");
-      }
-    }
-
-    function changePin() {
-      const newPin = document.getElementById("newPin").value.trim();
-
-      if (!newPin) {
-        setStatus("Vul een nieuwe pincode in.", "error");
-        return;
-      }
-
-      setSavedPin(newPin);
-      document.getElementById("newPin").value = "";
-      setStatus("Nieuwe pincode opgeslagen.", "success");
-    }
-
-    document.getElementById("pinInput").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") {
-        unlockApp();
-      }
-    });
-
-    if (isAuthenticated()) {
-      showApp();
-    } else {
-      showPinScreen();
-    }
-  </script>
-</body>
-</html>
+            <button type="button" class="btn
