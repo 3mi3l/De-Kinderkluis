@@ -6,7 +6,7 @@
   <title>De Kinderkluis - Saldo</title>
   <style>
     body { margin:0; font-family:Arial,sans-serif; background:#eef4ff; color:#1e293b; padding:20px; }
-    .wrap { max-width:900px; margin:0 auto; }
+    .wrap { max-width:1000px; margin:0 auto; }
     .card { background:#fff; border-radius:18px; padding:24px; box-shadow:0 8px 24px rgba(0,0,0,.08); margin-bottom:18px; }
     .btn, button { display:inline-block; text-decoration:none; background:#2563eb; color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-size:1rem; margin-right:8px; margin-bottom:8px; }
     .btn-green { background:#16a34a; }
@@ -16,12 +16,14 @@
     .field { margin-bottom:14px; }
     .field label { display:block; font-weight:bold; margin-bottom:6px; }
     .field input { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px; box-sizing:border-box; font-size:1rem; }
-    .goal-item, .tx-item { padding:14px; border-radius:12px; background:#f8fbff; border:1px solid #dbe7ff; margin-bottom:10px; }
+    .goal-item, .tx-item, .chore-item, .rate-item { padding:14px; border-radius:12px; background:#f8fbff; border:1px solid #dbe7ff; margin-bottom:10px; }
     .goal-actions { margin-top:10px; }
     .status, .error, .success, .loading { padding:12px; border-radius:12px; margin-top:12px; }
     .loading { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
     .error { background:#fff1f2; color:#b91c1c; border:1px solid #fecdd3; }
     .success { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    @media (max-width: 820px) { .grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -29,28 +31,40 @@
     <div class="card">
       <a class="btn" href="index.html">← Start</a>
       <h1 id="title">De Kinderkluis</h1>
-      <p class="muted">Jouw spaargeld en spaardoelen</p>
+      <p class="muted">Jouw spaargeld, spaardoelen en klusjes</p>
       <div class="saldo" id="saldo">Laden...</div>
       <div id="pageStatus" class="loading">Gegevens laden...</div>
     </div>
 
-    <div class="card">
-      <h2>Nieuw spaardoel maken</h2>
-      <div class="field">
-        <label for="newGoalName">Naam van je spaardoel</label>
-        <input id="newGoalName" type="text" placeholder="Bijv. Lego auto">
+    <div class="grid">
+      <div class="card">
+        <h2>Nieuw spaardoel maken</h2>
+        <div class="field">
+          <label for="newGoalName">Naam van je spaardoel</label>
+          <input id="newGoalName" type="text" placeholder="Bijv. Lego auto">
+        </div>
+        <div class="field">
+          <label for="newGoalAmount">Bedrag van je spaardoel</label>
+          <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+        </div>
+        <button class="btn-green" type="button" onclick="saveGoal()">Spaardoel toevoegen</button>
+        <div id="goalStatus" class="loading">Klaar om te laden...</div>
       </div>
-      <div class="field">
-        <label for="newGoalAmount">Bedrag van je spaardoel</label>
-        <input id="newGoalAmount" type="number" step="0.01" min="0" placeholder="Bijv. 15.00">
+
+      <div class="card">
+        <h2>Schermtijd winkel</h2>
+        <div id="ratesBox"></div>
       </div>
-      <button class="btn-green" type="button" onclick="saveGoal()">Spaardoel toevoegen</button>
-      <div id="goalStatus" class="loading">Klaar om te laden...</div>
     </div>
 
     <div class="card">
       <h2>Mijn spaardoelen</h2>
       <div id="goalsBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>Beschikbare klusjes</h2>
+      <div id="choresBox"></div>
     </div>
 
     <div class="card">
@@ -104,7 +118,6 @@
 
       const goalsBox = document.getElementById("goalsBox");
       goalsBox.innerHTML = "";
-
       const activeGoals = (data.goals || []).filter(g => g.active);
 
       if (activeGoals.length === 0) {
@@ -131,6 +144,38 @@
           goalsBox.appendChild(div);
         });
       }
+
+      const choresBox = document.getElementById("choresBox");
+      choresBox.innerHTML = "";
+      const activeChores = (data.chores || []).filter(c => c.active);
+
+      if (activeChores.length === 0) {
+        choresBox.innerHTML = '<div class="muted">Nog geen actieve klusjes.</div>';
+      } else {
+        activeChores.forEach(chore => {
+          const div = document.createElement("div");
+          div.className = "chore-item";
+          div.innerHTML = `
+            <div><strong>${chore.name}</strong></div>
+            <div class="muted">Beloning: ${euro(chore.reward)}</div>
+            <div class="muted">Schermtijdwaarde: ${chore.screenMinutes || 0} minuten</div>
+            <div class="muted">Categorie: ${chore.category || "-"}</div>
+          `;
+          choresBox.appendChild(div);
+        });
+      }
+
+      const ratesBox = document.getElementById("ratesBox");
+      ratesBox.innerHTML = "";
+      (data.screenTimeRates || []).forEach(rate => {
+        const div = document.createElement("div");
+        div.className = "rate-item";
+        div.innerHTML = `
+          <div><strong>${rate.minutes} minuten schermtijd</strong></div>
+          <div class="muted">Kost: ${euro(rate.euro)}</div>
+        `;
+        ratesBox.appendChild(div);
+      });
 
       const txBox = document.getElementById("transactions");
       txBox.innerHTML = "";
@@ -170,7 +215,6 @@
         setGoalStatus("Vul een naam voor je spaardoel in.", "error");
         return;
       }
-
       if (!goalAmount || goalAmount <= 0) {
         setGoalStatus("Vul een geldig doelbedrag in.", "error");
         return;
