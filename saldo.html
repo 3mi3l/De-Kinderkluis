@@ -16,14 +16,14 @@
     .field { margin-bottom:14px; }
     .field label { display:block; font-weight:bold; margin-bottom:6px; }
     .field input { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px; box-sizing:border-box; font-size:1rem; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
     .goal-item, .tx-item, .chore-item, .rate-item { padding:14px; border-radius:12px; background:#f8fbff; border:1px solid #dbe7ff; margin-bottom:10px; }
     .goal-actions { margin-top:10px; }
     .status, .error, .success, .loading { padding:12px; border-radius:12px; margin-top:12px; }
     .loading { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
     .error { background:#fff1f2; color:#b91c1c; border:1px solid #fecdd3; }
     .success { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-    @media (max-width: 820px) { .grid { grid-template-columns:1fr; } }
+    @media (max-width: 800px) { .grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -52,19 +52,21 @@
       </div>
 
       <div class="card">
-        <h2>Schermtijd winkel</h2>
+        <h2>Schermtijd tarieven</h2>
         <div id="ratesBox"></div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>Mijn spaardoelen</h2>
-      <div id="goalsBox"></div>
-    </div>
+    <div class="grid">
+      <div class="card">
+        <h2>Mijn spaardoelen</h2>
+        <div id="goalsBox"></div>
+      </div>
 
-    <div class="card">
-      <h2>Beschikbare klusjes</h2>
-      <div id="choresBox"></div>
+      <div class="card">
+        <h2>Beschikbare klusjes</h2>
+        <div id="choresBox"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -112,61 +114,10 @@
       return data;
     }
 
-    function renderState(data) {
-      document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Sem");
-      document.getElementById("saldo").textContent = euro(data.balance);
-
-      const goalsBox = document.getElementById("goalsBox");
-      goalsBox.innerHTML = "";
-      const activeGoals = (data.goals || []).filter(g => g.active);
-
-      if (activeGoals.length === 0) {
-        goalsBox.innerHTML = '<div class="muted">Nog geen actieve spaardoelen.</div>';
-      } else {
-        activeGoals.forEach(goal => {
-          const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
-          const percent = Number(goal.targetAmount || 0) > 0
-            ? Math.min(100, Math.round((Number(data.balance || 0) / Number(goal.targetAmount || 0)) * 100))
-            : 0;
-
-          const div = document.createElement("div");
-          div.className = "goal-item";
-          div.innerHTML = `
-            <div><strong>${goal.name}</strong></div>
-            <div class="muted">Doelbedrag: ${euro(goal.targetAmount)}</div>
-            <div class="muted">Gespaard: ${euro(data.balance)}</div>
-            <div class="muted">Nog nodig: ${euro(remaining)}</div>
-            <div class="muted">Voortgang: ${percent}%</div>
-            <div class="goal-actions">
-              <button class="btn-red" onclick="toggleGoal('${goal.id}')">Verbergen</button>
-            </div>
-          `;
-          goalsBox.appendChild(div);
-        });
-      }
-
-      const choresBox = document.getElementById("choresBox");
-      choresBox.innerHTML = "";
-      const activeChores = (data.chores || []).filter(c => c.active);
-
-      if (activeChores.length === 0) {
-        choresBox.innerHTML = '<div class="muted">Nog geen actieve klusjes.</div>';
-      } else {
-        activeChores.forEach(chore => {
-          const div = document.createElement("div");
-          div.className = "chore-item";
-          div.innerHTML = `
-            <div><strong>${chore.name}</strong></div>
-            <div class="muted">Beloning: ${euro(chore.reward)}</div>
-            <div class="muted">Schermtijdwaarde: ${chore.screenMinutes || 0} minuten</div>
-            <div class="muted">Categorie: ${chore.category || "-"}</div>
-          `;
-          choresBox.appendChild(div);
-        });
-      }
-
+    function renderRates(data) {
       const ratesBox = document.getElementById("ratesBox");
       ratesBox.innerHTML = "";
+
       (data.screenTimeRates || []).forEach(rate => {
         const div = document.createElement("div");
         div.className = "rate-item";
@@ -176,9 +127,66 @@
         `;
         ratesBox.appendChild(div);
       });
+    }
 
+    function renderGoals(data) {
+      const goalsBox = document.getElementById("goalsBox");
+      goalsBox.innerHTML = "";
+
+      const activeGoals = (data.goals || []).filter(g => g.active);
+
+      if (activeGoals.length === 0) {
+        goalsBox.innerHTML = '<div class="muted">Nog geen actieve spaardoelen.</div>';
+        return;
+      }
+
+      activeGoals.forEach(goal => {
+        const remaining = Math.max(0, Number(goal.targetAmount || 0) - Number(data.balance || 0));
+        const percent = Number(goal.targetAmount || 0) > 0
+          ? Math.min(100, Math.round((Number(data.balance || 0) / Number(goal.targetAmount || 0)) * 100))
+          : 0;
+
+        const div = document.createElement("div");
+        div.className = "goal-item";
+        div.innerHTML = `
+          <div><strong>${goal.name}</strong></div>
+          <div class="muted">Doelbedrag: ${euro(goal.targetAmount)}</div>
+          <div class="muted">Gespaard: ${euro(data.balance)}</div>
+          <div class="muted">Nog nodig: ${euro(remaining)}</div>
+          <div class="muted">Voortgang: ${percent}%</div>
+        `;
+        goalsBox.appendChild(div);
+      });
+    }
+
+    function renderChores(data) {
+      const choresBox = document.getElementById("choresBox");
+      choresBox.innerHTML = "";
+
+      const activeChores = (data.chores || []).filter(c => c.active);
+
+      if (activeChores.length === 0) {
+        choresBox.innerHTML = '<div class="muted">Nog geen klusjes beschikbaar.</div>';
+        return;
+      }
+
+      activeChores.forEach(chore => {
+        const div = document.createElement("div");
+        div.className = "chore-item";
+        div.innerHTML = `
+          <div><strong>${chore.name}</strong></div>
+          <div class="muted">Beloning: ${euro(chore.reward)}</div>
+          <div class="muted">Schermtijdwaarde: ongeveer ${chore.screenMinutes} minuten</div>
+          <div class="muted">Categorie: ${chore.category || "-"}</div>
+        `;
+        choresBox.appendChild(div);
+      });
+    }
+
+    function renderTransactions(data) {
       const txBox = document.getElementById("transactions");
       txBox.innerHTML = "";
+
       (data.transactions || []).slice(0, 10).forEach(tx => {
         const sign = tx.type === "bij" ? "+" : "-";
         const div = document.createElement("div");
@@ -191,6 +199,15 @@
         `;
         txBox.appendChild(div);
       });
+    }
+
+    function renderState(data) {
+      document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Sem");
+      document.getElementById("saldo").textContent = euro(data.balance);
+      renderRates(data);
+      renderGoals(data);
+      renderChores(data);
+      renderTransactions(data);
 
       document.getElementById("pageStatus").className = "success";
       document.getElementById("pageStatus").textContent = "Gegevens geladen.";
@@ -215,6 +232,7 @@
         setGoalStatus("Vul een naam voor je spaardoel in.", "error");
         return;
       }
+
       if (!goalAmount || goalAmount <= 0) {
         setGoalStatus("Vul een geldig doelbedrag in.", "error");
         return;
@@ -233,19 +251,6 @@
         setGoalStatus("Nieuw spaardoel opgeslagen.", "success");
       } catch (error) {
         setGoalStatus("Fout bij opslaan: " + error.message, "error");
-      }
-    }
-
-    async function toggleGoal(goalId) {
-      try {
-        const data = await apiPost({
-          action: "togglegoal",
-          goalId: goalId
-        });
-        renderState(data);
-      } catch (error) {
-        document.getElementById("pageStatus").className = "error";
-        document.getElementById("pageStatus").textContent = "Fout: " + error.message;
       }
     }
 
