@@ -76,7 +76,7 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyJN6X3xCKHd3SLgSdQjx69KVtjXwVRjGgx3CR0GCXWAdsK5xQ3pKvZcmXV8PElKpL2/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwwhMbH-vRQTx66_ByshsVEUpmSB4TkvKJwKMDydxzIe7FL4B-LxIrLPRtRGyA3yhTP/exec";
 
     function euro(amount) {
       return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(Number(amount || 0));
@@ -202,7 +202,7 @@
     }
 
     function renderState(data) {
-      document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Sem");
+      document.getElementById("title").textContent = "De Kinderkluis van " + (data.childName || "Codie");
       document.getElementById("saldo").textContent = euro(data.balance);
       renderRates(data);
       renderGoals(data);
